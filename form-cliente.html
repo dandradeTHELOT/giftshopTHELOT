@@ -59,7 +59,6 @@
       bottom: 0;
       background: rgba(255, 255, 255, 0.8);
       border-radius: 16px;
-      display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.2rem;
@@ -100,10 +99,9 @@
   form.addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // Mostrar indicador de carga
+    // Aquí es cuando realmente mandamos los datos: mostrar loader justo antes del fetch
     loading.style.display = 'flex';
 
-    // Capturar datos del formulario
     const data = {
       nombre: document.getElementById('nombre').value,
       telefono: document.getElementById('telefono').value,
@@ -113,26 +111,19 @@
       amount: document.getElementById('amount').value
     };
 
-    // Enviar datos a Make webhook
     fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(result => {
-      // Ocultar indicador
       loading.style.display = 'none';
 
-      // Éxito si ExtendedResultCode === 0
       if (result.ExtendedResultCode === 0) {
         const token = result.LoyaltySessionToken;
-        // Redirigir a pago pasando token y amount
         window.location.href = `form-pago.html?token=${encodeURIComponent(token)}&amount=${encodeURIComponent(data.amount)}`;
       } else {
-        // Mostrar mensaje de error retornado
         const msg = result.ErrorDescription || 'Ocurrió un error inesperado, inténtalo de nuevo.';
         alert(msg);
       }

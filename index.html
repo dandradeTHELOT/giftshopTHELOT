@@ -26,6 +26,12 @@
       width: 100%;
       text-align: center;
     }
+    .logo-area {
+      background-color: #3D93F7;
+      padding: 1.5rem;
+      border-radius: 16px;
+      margin-bottom: 2rem;
+    }
     .logo {
       width: 150px;
       margin-bottom: 1rem;
@@ -39,7 +45,6 @@
       width: 100%;
       height: auto;
       border-radius: 12px;
-      margin-bottom: 2rem;
     }
     .controls {
       display: flex;
@@ -90,15 +95,17 @@
 <body>
 
 <div class="container">
-  <img src="https://cdn.theatertoolkit.com/cdn/wwwroot/themes/custom/thelotent/images/logo.png?v=20250408.2" alt="The Lot Logo" class="logo">
   
+  <div class="logo-area">
+    <img src="https://www.thelotent.com/_next/static/media/thelot-logo.973f9fc5.svg" alt="The Lot Logo" class="logo">
+    <img src="https://api.thelotent.com/CDN/media/entity/get/ItemGraphic/120104?width=600&height=400&referenceScheme=HeadOffice&allowPlaceHolder=true" alt="Gift Card" class="giftcard-image">
+  </div>
+
   <h1>Selecciona tu Gift Card</h1>
 
-  <img src="https://api.thelotent.com/CDN/media/entity/get/ItemGraphic/120104?width=600&height=400&referenceScheme=HeadOffice&allowPlaceHolder=true" alt="Gift Card" class="giftcard-image">
-  
   <div class="controls">
     <button id="decrease">-</button>
-    <input type="text" id="amount" value="50" readonly>
+    <input type="text" id="amount" value="100" readonly>
     <button id="increase">+</button>
   </div>
   
@@ -111,18 +118,18 @@
   const increaseBtn = document.getElementById('increase');
   const continueBtn = document.getElementById('continue');
 
-  let amount = 50; // Valor inicial
+  let amount = 100; // Valor inicial
 
   decreaseBtn.addEventListener('click', () => {
-    if (amount > 1) {
-      amount--;
+    if (amount > 5) {
+      amount -= 5;
       amountInput.value = amount;
     }
   });
 
   increaseBtn.addEventListener('click', () => {
-    if (amount < 100) {
-      amount++;
+    if (amount < 500) { // si quieres puedes cambiar el máximo
+      amount += 5;
       amountInput.value = amount;
     }
   });

@@ -49,7 +49,7 @@
 <div class="container">
   <h1>Pago</h1>
 
-  <input type="text" id="paymentMethod" placeholder="Método de Pago (tarjeta, etc.)" required>
+  <input type="text" id="paymentMethod" placeholder="Método de Pago (tarjeta, PayPal, etc.)" required>
 
   <button onclick="submitOrder()">Pagar</button>
 </div>
@@ -65,7 +65,7 @@
       paymentMethod: document.getElementById('paymentMethod').value
     };
 
-    fetch('https://hook.eu1.make.com/tu-endpoint-aqui', {
+    fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -75,7 +75,8 @@
     .then(response => {
       if (response.ok) {
         alert('¡Orden enviada correctamente!');
-        window.location.href = 'gracias.html'; // Página final de "Gracias"
+        localStorage.clear(); // limpia los datos del carrito
+        window.location.href = 'gracias.html'; // redirige a página de agradecimiento
       } else {
         alert('Error al enviar. Intenta de nuevo.');
       }

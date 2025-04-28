@@ -33,7 +33,7 @@
       margin-bottom: 2rem;
     }
     .logo {
-      width: 150px;
+      width: 180px;
       margin-bottom: 1rem;
     }
     h1 {
@@ -41,12 +41,11 @@
       margin-bottom: 2rem;
       color: #003A7E;
     }
-.giftcard-image {
-  width: 250px;
-  height: auto;
-  border-radius: 12px;
-}
-
+    .giftcard-image {
+      width: 250px;
+      height: auto;
+      border-radius: 12px;
+    }
     .controls {
       display: flex;
       align-items: center;
@@ -91,6 +90,16 @@
     .continue-button:hover {
       background-color: #3D93F7;
     }
+
+    /* Responsive para móviles */
+    @media (max-width: 480px) {
+      .logo {
+        width: 140px;
+      }
+      .giftcard-image {
+        width: 200px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -129,7 +138,7 @@
   });
 
   increaseBtn.addEventListener('click', () => {
-    if (amount < 500) { // si quieres puedes cambiar el máximo
+    if (amount < 500) { // límite máximo
       amount += 5;
       amountInput.value = amount;
     }

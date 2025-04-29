@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Datos de Cliente - The Lot</title>
+  <title>Login Loyalty - The Lot</title>
   <style>
     body {
       font-family: 'Helvetica Neue', Helvetica, sans-serif;
@@ -37,7 +37,12 @@
       border: 2px solid #003A7E;
       border-radius: 12px;
     }
+    .buttons {
+      display: flex;
+      gap: 1rem;
+    }
     button {
+      flex: 1;
       background-color: #003A7E;
       color: white;
       border: none;
@@ -70,43 +75,45 @@
 <body>
 
 <div class="container">
-  <h1>Datos de Cliente</h1>
-  <form id="clienteForm">
-    <input type="text" id="nombre" name="nombre" placeholder="Nombre completo" required>
-    <input type="tel" id="telefono" name="telefono" placeholder="Teléfono" required>
-    <input type="email" id="correo" name="correo" placeholder="Correo electrónico" required>
-    
-    <input type="text" id="loyaltyUser" name="loyaltyUser" placeholder="Login de Loyalty (opcional)">
-    <input type="password" id="loyaltyPass" name="loyaltyPass" placeholder="Contraseña de Loyalty (opcional)">
-    
+  <h1>Loyalty</h1>
+  <form id="loginForm">
+    <input type="text" id="loyaltyUser" name="loyaltyUser" placeholder="Loyalty Username">
+    <input type="password" id="loyaltyPass" name="loyaltyPass" placeholder="Loyalty Password">
     <input type="hidden" id="amount" name="amount">
-    
-    <button type="submit">Continuar</button>
+    <div class="buttons">
+      <button type="button" id="skipBtn">Skip Login</button>
+      <button type="submit" id="continueBtn">Continue</button>
+    </div>
   </form>
-  
-  <div id="loading">Procesando...</div>
+  <div id="loading">Wait...</div>
 </div>
 
 <script>
-  // Recuperar el amount de la URL
+  // Obtener amount de la URL o usar 100 por defecto
   const params = new URLSearchParams(window.location.search);
   const amount = params.get('amount') || 100;
   document.getElementById('amount').value = amount;
 
-  const form = document.getElementById('clienteForm');
+  const form = document.getElementById('loginForm');
   const loading = document.getElementById('loading');
+  const skipBtn = document.getElementById('skipBtn');
+
+  // Si hacen Skip Login, redirigimos sin token
+  skipBtn.addEventListener('click', () => {
+    window.location.href = `form-pago.html?token=&amount=${encodeURIComponent(amount)}`;
+  });
 
   form.addEventListener('submit', function(e) {
     e.preventDefault();
     loading.style.display = 'flex';
 
+    const user = document.getElementById('loyaltyUser').value.trim();
+    const pass = document.getElementById('loyaltyPass').value.trim();
+
     const data = {
-      nombre: document.getElementById('nombre').value,
-      telefono: document.getElementById('telefono').value,
-      correo: document.getElementById('correo').value,
-      loyaltyUser: document.getElementById('loyaltyUser').value.trim(),
-      loyaltyPass: document.getElementById('loyaltyPass').value.trim(),
-      amount: document.getElementById('amount').value
+      loyaltyUser: user,
+      loyaltyPass: pass,
+      amount: amount
     };
 
     fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla', {
@@ -118,25 +125,22 @@
     .then(result => {
       loading.style.display = 'none';
 
-      // Verifica si el usuario realmente intentó login
-      const intentóLogin = data.loyaltyUser !== '' && data.loyaltyPass !== '';
+      const intentóLogin = user !== '' && pass !== '';
 
       if (result.ExtendedResultCode === 0) {
-        // Éxito con o sin token
         const token = result.LoyaltySessionToken || '';
-        window.location.href = `form-pago.html?token=${encodeURIComponent(token)}&amount=${encodeURIComponent(data.amount)}`;
+        window.location.href = `form-pago.html?token=${encodeURIComponent(token)}&amount=${encodeURIComponent(amount)}`;
       } else if (intentóLogin) {
-        // Solo alertar si efectivamente intentó login
-        alert(result.ErrorDescription || 'Error al iniciar sesión en Loyalty.');
+        alert(result.ErrorDescription || 'Invalid credentials.');
       } else {
-        // No intentó login → pasar sin alerta
-        window.location.href = `form-pago.html?token=&amount=${encodeURIComponent(data.amount)}`;
+        // Si por alguna razón no intentó login pero ExtendedResultCode ≠ 0
+        window.location.href = `form-pago.html?token=&amount=${encodeURIComponent(amount)}`;
       }
     })
     .catch(err => {
       console.error('Error enviando los datos:', err);
       loading.style.display = 'none';
-      alert('Invalid Credentials');
+      alert('Invalid credentials.');
     });
   });
 </script>

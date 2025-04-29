@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Login Loyalty - The Lot</title>
   <style>
     body {
@@ -70,7 +69,7 @@
       font-size: 1.2rem;
       font-weight: bold;
       color: #003A7E;
-      display: none;
+      z-index: 10;
     }
   </style>
 </head>
@@ -79,9 +78,9 @@
 <div class="container">
   <h1>Loyalty</h1>
   <form id="loginForm">
-    <input type="text" id="loyaltyUser" name="loyaltyUser" placeholder="Loyalty Username">
-    <input type="password" id="loyaltyPass" name="loyaltyPass" placeholder="Loyalty Password">
-    <input type="hidden" id="amount" name="amount">
+    <input type="text" id="loyaltyUser" name="loyaltyUser" placeholder="Loyalty Username" />
+    <input type="password" id="loyaltyPass" name="loyaltyPass" placeholder="Loyalty Password" />
+    <input type="hidden" id="amount" name="amount" />
     <div class="buttons">
       <button type="button" id="skipBtn">Skip Login</button>
       <button type="submit" id="continueBtn">Continue</button>
@@ -105,10 +104,16 @@
 
   form.addEventListener('submit', function(e) {
     e.preventDefault();
-    loading.style.display = 'flex';
 
     const user = document.getElementById('loyaltyUser').value.trim();
     const pass = document.getElementById('loyaltyPass').value.trim();
+
+    if (!user || !pass) {
+      alert('Por favor ingresa usuario y contraseña.');
+      return;
+    }
+
+    loading.style.display = 'flex';
 
     const data = {
       loyaltyUser: user,
@@ -124,18 +129,19 @@
     .then(res => res.json())
     .then(result => {
       loading.style.display = 'none';
-      const intentóLogin = user !== '' && pass !== '';
-      if (result.ExtendedResultCode !== 0 && intentóLogin) {
-        alert(result.ErrorDescription || 'Invalid credentials.');
+
+      if (result.ExtendedResultCode !== 0) {
+        alert(result.ErrorDescription || 'Credenciales incorrectas.');
         return;
       }
-      const token = (result.ExtendedResultCode === 0) ? (result.LoyaltySessionToken || '') : '';
+
+      const token = result.LoyaltySessionToken || '';
       window.location.href = `form-pago.html?token=${encodeURIComponent(token)}&amount=${encodeURIComponent(amount)}`;
     })
     .catch(err => {
       loading.style.display = 'none';
       console.error('Error enviando los datos:', err);
-      window.location.href = `form-pago.html?token=&amount=${encodeURIComponent(amount)}`;
+      alert('Error en la conexión. Intenta de nuevo.');
     });
   });
 </script>

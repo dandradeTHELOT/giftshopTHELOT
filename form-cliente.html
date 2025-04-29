@@ -51,7 +51,7 @@
       background-color: #3D93F7;
     }
     #loading {
-      display: none;               /* inicialmente oculto */
+      display: none;
       position: absolute;
       top: 0;
       left: 0;
@@ -98,16 +98,14 @@
 
   form.addEventListener('submit', function(e) {
     e.preventDefault();
-
-    // Aquí es cuando realmente mandamos los datos: mostrar loader justo antes del fetch
     loading.style.display = 'flex';
 
     const data = {
       nombre: document.getElementById('nombre').value,
       telefono: document.getElementById('telefono').value,
       correo: document.getElementById('correo').value,
-      loyaltyUser: document.getElementById('loyaltyUser').value,
-      loyaltyPass: document.getElementById('loyaltyPass').value,
+      loyaltyUser: document.getElementById('loyaltyUser').value.trim(),
+      loyaltyPass: document.getElementById('loyaltyPass').value.trim(),
       amount: document.getElementById('amount').value
     };
 
@@ -120,20 +118,20 @@
     .then(result => {
       loading.style.display = 'none';
 
-if (result.ExtendedResultCode === 0) {
-  const token = result.LoyaltySessionToken || '';
-  window.location.href = `form-pago.html?token=${encodeURIComponent(token)}&amount=${encodeURIComponent(data.amount)}`;
-} else {
-  const intentóLogin = data.loyaltyUser.trim() !== '' || data.loyaltyPass.trim() !== '';
-  if (intentóLogin) {
-    const msg = result.ErrorDescription || 'Error al iniciar sesión en Loyalty.';
-    alert(msg);
-  } else {
-    // Si no intentó login, igual lo dejamos pasar
-    window.location.href = `form-pago.html?token=&amount=${encodeURIComponent(data.amount)}`;
-  }
-}
+      // Verifica si el usuario realmente intentó login
+      const intentóLogin = data.loyaltyUser !== '' && data.loyaltyPass !== '';
 
+      if (result.ExtendedResultCode === 0) {
+        // Éxito con o sin token
+        const token = result.LoyaltySessionToken || '';
+        window.location.href = `form-pago.html?token=${encodeURIComponent(token)}&amount=${encodeURIComponent(data.amount)}`;
+      } else if (intentóLogin) {
+        // Solo alertar si efectivamente intentó login
+        alert(result.ErrorDescription || 'Error al iniciar sesión en Loyalty.');
+      } else {
+        // No intentó login → pasar sin alerta
+        window.location.href = `form-pago.html?token=&amount=${encodeURIComponent(data.amount)}`;
+      }
     })
     .catch(err => {
       console.error('Error enviando los datos:', err);

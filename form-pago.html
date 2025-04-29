@@ -78,8 +78,8 @@
 <div class="container">
   <h1>Payment Details</h1>
   <form id="paymentForm">
-    <input type="email" id="customer_email" placeholder="Email Address" required>
-    <input type="tel" id="customer_phone" placeholder="Phone Number" required>
+    <input type="email" id="customer_email" placeholder="Email Address" required />
+    <input type="tel" id="customer_phone" placeholder="Phone Number" required />
 
     <label for="card_type">Card Type</label>
     <select id="card_type" name="card_type" required>
@@ -89,29 +89,30 @@
       <option value="AMEX">AMEX</option>
     </select>
 
-    <input type="text" id="card_name" placeholder="Name on Card" required>
-    <input type="text" id="card_number" placeholder="Card Number" required maxlength="16">
-    <input type="text" id="card_expiry" placeholder="MM/YY" required maxlength="5">
-    <input type="text" id="card_cvc" placeholder="CVC" required maxlength="4">
+    <input type="text" id="card_name" placeholder="Name on Card" required />
+    <input type="text" id="card_number" placeholder="Card Number" required maxlength="16" />
+    <input type="text" id="card_expiry" placeholder="MM/YY" required maxlength="5" />
+    <input type="text" id="card_cvc" placeholder="CVC" required maxlength="4" />
 
     <label for="amount_display">Amount to Pay</label>
-    <input type="text" id="amount_display" readonly>
-    <input type="hidden" id="amount" name="amount">
+    <input type="text" id="amount_display" readonly />
+    <input type="hidden" id="amount" name="amount" />
 
     <div class="g-recaptcha" data-sitekey="6LfEvCcrAAAAAD0pDf2NlUYxazGY_iAZDwPPmGQ8"></div>
 
-    <button type="submit">Pay</button>
+    <button type="submit" id="submitBtn">Pay</button>
   </form>
   <div id="loading">Processing payment...</div>
 </div>
 
 <script>
   const form = document.getElementById('paymentForm');
+  const loading = document.getElementById('loading');
+  const submitBtn = document.getElementById('submitBtn');
   const params = new URLSearchParams(window.location.search);
   const amount = params.get('amount') || '0.00';
   document.getElementById('amount_display').value = amount;
   document.getElementById('amount').value = amount;
-  const loading = document.getElementById('loading');
 
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -135,6 +136,7 @@
     };
 
     loading.style.display = 'flex';
+    submitBtn.disabled = true;
 
     try {
       const response = await fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla', {
@@ -147,22 +149,23 @@
       let result;
       try {
         result = JSON.parse(text);
-      } catch (parseErr) {
-        throw new Error('Invalid JSON response from server');
+      } catch (err) {
+        alert('Unexpected response from the server. Please try again.');
+        return;
       }
 
-      loading.style.display = 'none';
-
-      if (result.data?.ExtendedResultCode === 0) {
+      if (result.ExtendedResultCode === 0) {
         window.location.href = 'gracias.html';
       } else {
-        alert(result.data?.ErrorDescription || 'There was an error processing your payment.');
+        alert(result.ErrorDescription || 'There was an error processing your payment.');
       }
 
     } catch (error) {
+      console.error('Fetch error:', error);
+      alert('An error occurred while processing your payment.');
+    } finally {
       loading.style.display = 'none';
-      console.error('Error sending data:', error);
-      alert('An error occurred while processing your payment. Please try again.');
+      submitBtn.disabled = false;
     }
   });
 </script>

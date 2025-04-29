@@ -22,7 +22,7 @@
       background: #fff;
       padding: 2rem;
       border-radius: 16px;
-      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
       max-width: 400px;
       width: 100%;
       position: relative;
@@ -31,6 +31,9 @@
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
+    }
+    label {
+      font-weight: bold;
     }
     input, .readonly-input {
       padding: 1rem;
@@ -50,7 +53,7 @@
       font-size: 1.2rem;
       border-radius: 12px;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: background-color .3s;
     }
     button:hover {
       background-color: #3D93F7;
@@ -62,16 +65,34 @@
 <div class="container">
   <h1>Detalles de Pago</h1>
   <form id="pagoForm">
-    <!-- Cantidad elegida (solo lectura) -->
+    <!-- Solo lectura: monto decidido -->
     <label for="payment_amount">Monto a pagar</label>
     <input type="text" id="payment_amount" class="readonly-input" readonly>
 
+    <!-- Cliente ingresa estos datos -->
+    <label for="customer_name">Nombre</label>
+    <input type="text" id="customer_name" placeholder="Tu nombre completo" required>
+
+    <label for="customer_phone">Teléfono</label>
+    <input type="tel" id="customer_phone" placeholder="Tu teléfono" required>
+
+    <label for="customer_email">Correo electrónico</label>
+    <input type="email" id="customer_email" placeholder="Tu correo" required>
+
+    <!-- Datos de tarjeta -->
+    <label for="card_name">Nombre en tarjeta</label>
     <input type="text" id="card_name" placeholder="Nombre en tarjeta" required>
+
+    <label for="card_number">Número de tarjeta</label>
     <input type="text" id="card_number" placeholder="Número de tarjeta" required maxlength="16">
+
+    <label for="card_expiry">Vencimiento (MM/AA)</label>
     <input type="text" id="card_expiry" placeholder="MM/AA" required maxlength="5">
+
+    <label for="card_cvc">CVC</label>
     <input type="text" id="card_cvc" placeholder="CVC" required maxlength="4">
     
-    <!-- Google reCAPTCHA -->
+    <!-- reCAPTCHA -->
     <div class="g-recaptcha" data-sitekey="6LfEvCcrAAAAAD0pDf2NlUYxazGY_iAZDwPPmGQ8"></div>
 
     <button type="submit">Pagar</button>
@@ -79,17 +100,12 @@
 </div>
 
 <script>
-  // 1) Recupera el amount de la URL
+  // Recuperar y mostrar el monto decidido
   const params = new URLSearchParams(window.location.search);
   const paymentValue = params.get('amount') || '0';
-  
-  // 2) Muestra en el campo de solo lectura
-  const paymentInput = document.getElementById('payment_amount');
-  paymentInput.value = paymentValue;
+  document.getElementById('payment_amount').value = paymentValue;
 
-  // 3) Listener de envío
-  const form = document.getElementById('pagoForm');
-  form.addEventListener('submit', async function(e) {
+  document.getElementById('pagoForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
     // reCAPTCHA
@@ -99,29 +115,16 @@
       return;
     }
 
-    // Captura datos de tarjeta
-    const cardName   = document.getElementById('card_name').value;
-    const cardNumber = document.getElementById('card_number').value;
-    const cardExpiry = document.getElementById('card_expiry').value;
-    const cardCvc    = document.getElementById('card_cvc').value;
-
-    // Datos del cliente también pasados por URL
-    const customerName  = params.get('customer_name')  || '';
-    const customerPhone = params.get('customer_phone') || '';
-    const customerEmail = params.get('customer_email') || '';
-    const userSessionId = params.get('token')          || '';
-
-    // Construye el payload incluyendo el monto inmutable
+    // Capturar inputs
     const data = {
-      card_name:           cardName,
-      card_number:         cardNumber,
-      card_expiry:         cardExpiry,
-      card_cvc:            cardCvc,
-      customer_name:       customerName,
-      customer_phone:      customerPhone,
-      customer_email:      customerEmail,
-      UserSessionId:       userSessionId,
-      PaymentValueCents:   parseInt(paymentValue, 10),
+      PaymentValueCents: parseInt(paymentValue, 10),
+      customer_name:  document.getElementById('customer_name').value,
+      customer_phone: document.getElementById('customer_phone').value,
+      customer_email: document.getElementById('customer_email').value,
+      card_name:      document.getElementById('card_name').value,
+      card_number:    document.getElementById('card_number').value,
+      card_expiry:    document.getElementById('card_expiry').value,
+      card_cvc:       document.getElementById('card_cvc').value,
       "g-recaptcha-response": recaptchaResponse
     };
 
@@ -131,11 +134,9 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
-
-      // Redirigir a página de gracias
-      window.location.href = "gracias.html";
-    } catch (error) {
-      console.error('Error enviando los datos:', error);
+      window.location.href = 'gracias.html';
+    } catch (err) {
+      console.error(err);
       alert('Ocurrió un error al procesar tu pago. Intenta nuevamente.');
     }
   });

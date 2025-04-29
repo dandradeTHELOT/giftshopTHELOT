@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -69,6 +70,7 @@
       font-size: 1.2rem;
       font-weight: bold;
       color: #003A7E;
+      display: none;
     }
   </style>
 </head>
@@ -85,7 +87,7 @@
       <button type="submit" id="continueBtn">Continue</button>
     </div>
   </form>
-  <div id="loading" style="display: none; display: flex;">Procesando...</div>
+  <div id="loading">Procesando...</div>
 </div>
 
 <script>
@@ -97,30 +99,21 @@
   const loading = document.getElementById('loading');
   const skipBtn = document.getElementById('skipBtn');
 
-  // Opción Skip Login
   skipBtn.addEventListener('click', () => {
     window.location.href = `form-pago.html?token=&amount=${encodeURIComponent(amount)}`;
   });
 
-  // Opción Continue
   form.addEventListener('submit', function(e) {
     e.preventDefault();
+    loading.style.display = 'flex';
 
     const user = document.getElementById('loyaltyUser').value.trim();
     const pass = document.getElementById('loyaltyPass').value.trim();
 
-    // Si no hay usuario ni contraseña, actuar como "Skip"
-    if (!user && !pass) {
-      window.location.href = `form-pago.html?token=&amount=${encodeURIComponent(amount)}`;
-      return;
-    }
-
-    loading.style.display = 'flex';
-
     const data = {
       loyaltyUser: user,
       loyaltyPass: pass,
-      amount
+      amount: amount
     };
 
     fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla', {
@@ -131,19 +124,18 @@
     .then(res => res.json())
     .then(result => {
       loading.style.display = 'none';
-
-      if (result.ExtendedResultCode !== 0) {
-        alert(result.ErrorDescription || 'Credenciales inválidas.');
+      const intentóLogin = user !== '' && pass !== '';
+      if (result.ExtendedResultCode !== 0 && intentóLogin) {
+        alert(result.ErrorDescription || 'Invalid credentials.');
         return;
       }
-
-      const token = result.LoyaltySessionToken || '';
+      const token = (result.ExtendedResultCode === 0) ? (result.LoyaltySessionToken || '') : '';
       window.location.href = `form-pago.html?token=${encodeURIComponent(token)}&amount=${encodeURIComponent(amount)}`;
     })
     .catch(err => {
       loading.style.display = 'none';
       console.error('Error enviando los datos:', err);
-      alert('Hubo un problema con el servidor. Intenta de nuevo.');
+      window.location.href = `form-pago.html?token=&amount=${encodeURIComponent(amount)}`;
     });
   });
 </script>

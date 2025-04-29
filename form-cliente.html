@@ -120,13 +120,20 @@
     .then(result => {
       loading.style.display = 'none';
 
-      if (result.ExtendedResultCode === 0) {
-        const token = result.LoyaltySessionToken;
-        window.location.href = `form-pago.html?token=${encodeURIComponent(token)}&amount=${encodeURIComponent(data.amount)}`;
-      } else {
-        const msg = result.ErrorDescription || 'Ocurrió un error inesperado, inténtalo de nuevo.';
-        alert(msg);
-      }
+if (result.ExtendedResultCode === 0) {
+  const token = result.LoyaltySessionToken || '';
+  window.location.href = `form-pago.html?token=${encodeURIComponent(token)}&amount=${encodeURIComponent(data.amount)}`;
+} else {
+  const intentóLogin = data.loyaltyUser.trim() !== '' || data.loyaltyPass.trim() !== '';
+  if (intentóLogin) {
+    const msg = result.ErrorDescription || 'Error al iniciar sesión en Loyalty.';
+    alert(msg);
+  } else {
+    // Si no intentó login, igual lo dejamos pasar
+    window.location.href = `form-pago.html?token=&amount=${encodeURIComponent(data.amount)}`;
+  }
+}
+
     })
     .catch(err => {
       console.error('Error enviando los datos:', err);

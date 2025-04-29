@@ -146,11 +146,11 @@
       const result = await response.json();
       loading.style.display = 'none';
 
-      if (result.ExtendedResultCode === 0) {
-        window.location.href = 'gracias.html';
-      } else {
-        alert(result.ErrorDescription || 'There was an error processing your payment.');
-      }
+if (result.data?.ExtendedResultCode === 0) {
+  window.location.href = 'gracias.html';
+} else {
+  alert(result.data?.ErrorDescription || 'There was an error processing your payment.');
+}
 
     } catch (error) {
       loading.style.display = 'none';

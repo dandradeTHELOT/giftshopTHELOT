@@ -58,10 +58,7 @@
     #loading {
       display: none;
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(255, 255, 255, 0.8);
       border-radius: 16px;
       align-items: center;
@@ -89,7 +86,7 @@
 </div>
 
 <script>
-  // Obtener amount de la URL o usar 100 por defecto
+  // Tomar amount de la URL o 100 por defecto
   const params = new URLSearchParams(window.location.search);
   const amount = params.get('amount') || 100;
   document.getElementById('amount').value = amount;
@@ -98,24 +95,21 @@
   const loading = document.getElementById('loading');
   const skipBtn = document.getElementById('skipBtn');
 
-  // Skip Login: redirigir directamente sin enviar webhook
+  // Skip Login: ir directo sin webhook
   skipBtn.addEventListener('click', () => {
     window.location.href = `form-pago.html?token=&amount=${encodeURIComponent(amount)}`;
   });
 
-  // Continue: enviar webhook y luego redirigir
+  // Continue: enviar webhook y redirigir solo si ExtendedResultCode === 0
   form.addEventListener('submit', function(e) {
     e.preventDefault();
     loading.style.display = 'flex';
 
     const user = document.getElementById('loyaltyUser').value.trim();
     const pass = document.getElementById('loyaltyPass').value.trim();
+    const intentóLogin = (user !== '' && pass !== '');
 
-    const data = {
-      loyaltyUser: user,
-      loyaltyPass: pass,
-      amount: amount
-    };
+    const data = { loyaltyUser: user, loyaltyPass: pass, amount };
 
     fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla', {
       method: 'POST',
@@ -125,16 +119,22 @@
     .then(res => res.json())
     .then(result => {
       loading.style.display = 'none';
-      const intentóLogin = user !== '' && pass !== '';
+
+      // Si hubo error y se intentó login: sólo alert y NO redirigir
       if (result.ExtendedResultCode !== 0 && intentóLogin) {
-        alert(result.ErrorDescription || 'Invalid credentials.');
+        return alert(result.ErrorDescription || 'Invalid credentials.');
       }
-      const token = (result.ExtendedResultCode === 0) ? (result.LoyaltySessionToken || '') : '';
+
+      // En cualquier otro caso (skip o login válido) redirigimos
+      const token = (result.ExtendedResultCode === 0) 
+        ? (result.LoyaltySessionToken || '') 
+        : '';
       window.location.href = `form-pago.html?token=${encodeURIComponent(token)}&amount=${encodeURIComponent(amount)}`;
     })
     .catch(err => {
       loading.style.display = 'none';
       console.error('Error enviando los datos:', err);
+      // En caso de error de red, redirigimos sin token
       window.location.href = `form-pago.html?token=&amount=${encodeURIComponent(amount)}`;
     });
   });

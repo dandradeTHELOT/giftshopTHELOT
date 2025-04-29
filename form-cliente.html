@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Login Loyalty - The Lot</title>
+  <title>Datos de Cliente - The Lot</title>
   <style>
     body {
       font-family: 'Helvetica Neue', Helvetica, sans-serif;
@@ -37,29 +37,26 @@
       border: 2px solid #003A7E;
       border-radius: 12px;
     }
-    .actions {
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-    }
     button {
       background-color: #003A7E;
       color: white;
       border: none;
       padding: 1rem;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       border-radius: 12px;
       cursor: pointer;
       transition: background-color 0.3s;
-      flex: 1;
     }
     button:hover {
       background-color: #3D93F7;
     }
     #loading {
-      display: none;
+      display: none;               /* inicialmente oculto */
       position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: rgba(255, 255, 255, 0.8);
       border-radius: 16px;
       align-items: center;
@@ -73,38 +70,45 @@
 <body>
 
 <div class="container">
-  <h1>Login Loyalty</h1>
-  <form id="loginForm">
-    <input type="text" id="loyaltyUser" name="loyaltyUser" placeholder="Usuario Loyalty" required>
-    <input type="password" id="loyaltyPass" name="loyaltyPass" placeholder="Contraseña Loyalty" required>
-
-    <div class="actions">
-      <button type="button" id="skipBtn">Saltar login</button>
-      <button type="submit">Ingresar</button>
-    </div>
+  <h1>Datos de Cliente</h1>
+  <form id="clienteForm">
+    <input type="text" id="nombre" name="nombre" placeholder="Nombre completo" required>
+    <input type="tel" id="telefono" name="telefono" placeholder="Teléfono" required>
+    <input type="email" id="correo" name="correo" placeholder="Correo electrónico" required>
+    
+    <input type="text" id="loyaltyUser" name="loyaltyUser" placeholder="Login de Loyalty (opcional)">
+    <input type="password" id="loyaltyPass" name="loyaltyPass" placeholder="Contraseña de Loyalty (opcional)">
+    
+    <input type="hidden" id="amount" name="amount">
+    
+    <button type="submit">Continuar</button>
   </form>
   
   <div id="loading">Procesando...</div>
 </div>
 
 <script>
-  const form = document.getElementById('loginForm');
-  const loading = document.getElementById('loading');
-  const skipBtn = document.getElementById('skipBtn');
+  // Recuperar el amount de la URL
+  const params = new URLSearchParams(window.location.search);
+  const amount = params.get('amount') || 100;
+  document.getElementById('amount').value = amount;
 
-  // Acción de "Saltar login"
-  skipBtn.addEventListener('click', () => {
-    // Redirige directamente al flujo de pago sin token
-    window.location.href = 'form-pago.html';
-  });
+  const form = document.getElementById('clienteForm');
+  const loading = document.getElementById('loading');
 
   form.addEventListener('submit', function(e) {
     e.preventDefault();
+
+    // Aquí es cuando realmente mandamos los datos: mostrar loader justo antes del fetch
     loading.style.display = 'flex';
 
     const data = {
+      nombre: document.getElementById('nombre').value,
+      telefono: document.getElementById('telefono').value,
+      correo: document.getElementById('correo').value,
       loyaltyUser: document.getElementById('loyaltyUser').value,
-      loyaltyPass: document.getElementById('loyaltyPass').value
+      loyaltyPass: document.getElementById('loyaltyPass').value,
+      amount: document.getElementById('amount').value
     };
 
     fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla', {
@@ -117,18 +121,17 @@
       loading.style.display = 'none';
 
       if (result.ExtendedResultCode === 0) {
-        // Login exitoso: redirigir con token en URL
         const token = result.LoyaltySessionToken;
-        window.location.href = `form-pago.html?token=${encodeURIComponent(token)}`;
+        window.location.href = `form-pago.html?token=${encodeURIComponent(token)}&amount=${encodeURIComponent(data.amount)}`;
       } else {
-        const msg = result.ErrorDescription || 'Usuario o contraseña incorrectos.';
+        const msg = result.ErrorDescription || 'Ocurrió un error inesperado, inténtalo de nuevo.';
         alert(msg);
       }
     })
     .catch(err => {
-      console.error(err);
+      console.error('Error enviando los datos:', err);
       loading.style.display = 'none';
-      alert('Error en el servidor, intenta más tarde.');
+      alert('Error en el servidor, intenta de nuevo más tarde.');
     });
   });
 </script>

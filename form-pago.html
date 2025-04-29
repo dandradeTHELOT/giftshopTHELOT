@@ -56,11 +56,12 @@
       background-color: #3D93F7;
     }
     #loading {
-      display: none;               /* Oculto por defecto */
+      display: none;
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(255,255,255,0.8);
       border-radius: 16px;
+      display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.2rem;
@@ -132,7 +133,6 @@
       'g-recaptcha-response': recaptchaResponse
     };
 
-    // Mostrar loader justo antes de enviar
     loading.style.display = 'flex';
     submitBtn.disabled = true;
 
@@ -144,13 +144,16 @@
       });
 
       const text = await response.text();
-      let result;
+      let parsed;
       try {
-        result = JSON.parse(text);
+        parsed = JSON.parse(text);
       } catch {
         alert('Unexpected response from server.');
         return;
       }
+
+      // Manejar array o objeto
+      const result = Array.isArray(parsed) ? parsed[0] : parsed;
 
       if (result.ExtendedResultCode === 0) {
         window.location.href = 'gracias.html';

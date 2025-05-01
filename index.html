@@ -234,11 +234,11 @@
         ...(!!_loyaltyCard && { card_loyalty_number: _loyaltyCard })
       };
 
-     try{
+    try{
         const res=await fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
         const txt=await res.text(), obj=JSON.parse(txt), r=Array.isArray(obj)?obj[0]:obj;
-        document.getElementById('loading').style.display='none'; if(r.ExtendedResultCode===0) { stopTimer(); show('thanks'); }
-      }
+        document.getElementById('loading').style.display='none'; if(r.ExtendedResultCode===0) { stopTimer(); show('thanks'); } else alert(r.ErrorDescription||'Payment error.');
+      }catch{document.getElementById('loading').style.display='none'; alert('Error processing payment.');}
     };
     document.getElementById('finish').onclick = () => location.reload();
   </script>

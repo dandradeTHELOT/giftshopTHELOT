@@ -231,7 +231,7 @@
         card_cvc: document.getElementById('cvc').value,
         amount: amt,
         'g-recaptcha-response': rec,
-        card_loyalty_number: _loyaltyCard || ''
+        ...(!!_loyaltyCard && { card_loyalty_number: _loyaltyCard })
       };
 
      try{
